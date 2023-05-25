@@ -1,12 +1,8 @@
 import socket
-import sys
 from threading import *
-from Code.Client.Client_Ui import Ui_Client
-from PyQt5.QtWidgets import *
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import *
 
-class Client(QMainWindow, Ui_Client):
+
+class Client:
     """
     TODO
     - create tcp connection
@@ -20,15 +16,9 @@ class Client(QMainWindow, Ui_Client):
     """
 
     def __init__(self, ip='127.0.1.1', port=8888):
-        super(Client, self).__init__()
-        self.setupUi(self)
         self.client = None
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.setMouseTracking(True)
-        self.setFocusPolicy(Qt.StrongFocus)
-        self.name.setAlignment(QtCore.Qt.AlignCenter)
 
-        # self.start_tcp_client(ip, port)
+        self.start_tcp_client(ip, port)
 
     def start_tcp_client(self, ip, port):
 
@@ -67,7 +57,4 @@ class Client(QMainWindow, Ui_Client):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
     client_ui = Client()
-    client_ui.show()
-    sys.exit(app.exec_())

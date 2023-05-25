@@ -1,10 +1,10 @@
 import socket
 from threading import *
 from enum import Enum
-from Code.Server.Led import *
-from Code.Server.Buzzer import *
-from Code.Server.Light import *
-from Code.Server.Ultrasonic import *
+from car_utilities.Led import *
+from car_utilities.Buzzer import *
+from car_utilities.Light import *
+from car_utilities.Ultrasonic import *
 
 
 class Command(Enum):
