@@ -1,24 +1,13 @@
 import socket
 import sys
 from threading import *
+from command import *
 
 
 class Client:
-    """
-    TODO
-    - create tcp connection
-    - read msg
-    - perform actions
-        - send motor move
-        - send servos move
-        - send LEDs change
-        - ask for battery
-        - ask for camera
-    """
 
-    def __init__(self, ip='138.250.156.7', port=8787):
+    def __init__(self, ip, port=8888):
         self.client = None
-
         self.start_tcp_client(ip, port)
 
     def start_tcp_client(self, ip, port):
@@ -31,10 +20,10 @@ class Client:
 
         thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
-        thread_send = Thread(target=self.send_msg)
+        # thread_send = Thread(target=self.send_msg)
 
         thread.start()
-        thread_send.start()
+        # thread_send.start()
 
     def waiting_for_message(self):
         while True:
@@ -43,18 +32,21 @@ class Client:
                 break
             print(data)
 
-    def send_msg(self):
-        while True:
-            txt = input('? ').encode('utf-8')
-            n = self.client.send(txt)
-            if n != len(txt):
-                print('erreur d\'envoie')
-                break
+    # def send_msg(self):
+    #     while True:
+    #         txt = input('? ').encode('utf-8')
+    #         n = self.client.send(txt)
+    #         if n != len(txt):
+    #             print('erreur d\'envoie')
+    #             break
 
-    # def send_msg(self, data):
-    #    n = self.client.send(data.encode('utf-8'))
-    #    if n != len(data):
-    #        print('sending error')
+    def send_msg(self, data):
+        """
+        data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
+        """
+        n = self.client.send(data.encode('utf-8'))
+        if n != len(data):
+            print('sending error')
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 # freenove-car-connection-v2
 
-a simple TCP connection :
+A simple TCP connection:
 
 - server is the car waiting for commands
 - client is another device sending commands to the car

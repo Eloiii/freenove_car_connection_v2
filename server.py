@@ -3,34 +3,14 @@ import struct
 import fcntl
 import sys
 from threading import *
-from enum import Enum
+from command import *
 from car_utilities.Led import *
-from car_utilities.Buzzer import * 
+from car_utilities.Buzzer import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
 
 
-class Command(Enum):
-    CMD_MOTOR = 'motor'
-    CMD_SERVO = 'servo'
-    CMD_LED = 'led'
-    CMD_SONIC = 'sonic'
-    CMD_BUZZER = 'buzzer'
-    CMD_LIGHT = 'light'
-
-
 class Server:
-    """
-    TODO
-    - create tcp connection
-    - read msg
-    - perform actions
-        - move motors
-        - move servos
-        - change LEDs
-        - manage ultrasonic
-        - send power data
-    """
 
     def __init__(self, port=8787):
         self.server = None
@@ -46,7 +26,7 @@ class Server:
 
         ip_addr = socket.inet_ntoa(fcntl.ioctl(server.fileno(),
                                                0x8915,
-                                               struct.pack('256s',b'wlan0'[:15])
+                                               struct.pack('256s', b'wlan0'[:15])
                                                )[20:24])
 
         server.bind((ip_addr, port))
@@ -72,8 +52,9 @@ class Server:
             print(data)
 
     """
-    :param msg is of the form : Command XXX_XXX
+    msg shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
     """
+
     def treat_msg(self, msg):
         split_msg = msg.split(' ')
         cmd = split_msg[0]
