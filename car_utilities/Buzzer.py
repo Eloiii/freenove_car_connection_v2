@@ -1,6 +1,6 @@
 import time
 import RPi.GPIO as GPIO
-from Command import COMMAND as cmd
+
 GPIO.setwarnings(False)
 Buzzer_Pin = 17
 GPIO.setmode(GPIO.BCM)

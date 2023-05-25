@@ -1,5 +1,5 @@
 import time
-from PCA9685 import PCA9685
+from .PCA9685 import *
 class Motor:
     def __init__(self):
         self.pwm = PCA9685(0x40, debug=True)
