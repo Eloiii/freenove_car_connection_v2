@@ -1,4 +1,5 @@
 import socket
+import sys
 from threading import *
 
 
@@ -15,7 +16,7 @@ class Client:
         - ask for camera
     """
 
-    def __init__(self, ip='127.0.1.1', port=8888):
+    def __init__(self, ip='138.250.156.7', port=8787):
         self.client = None
 
         self.start_tcp_client(ip, port)
@@ -42,19 +43,19 @@ class Client:
                 break
             print(data)
 
-    # def send_msg(self):
-    #     while True:
-    #         txt = input('? ').encode('utf-8')
-    #         n = self.client.send(txt)
-    #         if n != len(txt):
-    #             print('erreur d\'envoie')
-    #             break
+    def send_msg(self):
+        while True:
+            txt = input('? ').encode('utf-8')
+            n = self.client.send(txt)
+            if n != len(txt):
+                print('erreur d\'envoie')
+                break
 
-    def send_msg(self, data):
-        n = self.client.send(data)
-        if n != len(data):
-            print('sending error')
+    # def send_msg(self, data):
+    #    n = self.client.send(data.encode('utf-8'))
+    #    if n != len(data):
+    #        print('sending error')
 
 
 if __name__ == '__main__':
-    client_ui = Client()
+    client_ui = Client(sys.argv[1], int(sys.argv[2]))
