@@ -70,27 +70,27 @@ class Server:
     """
     def treat_msg(self, msg):
         split_msg = msg.split(' ')
-        match split_msg[0]:
-            case Command.CMD_MOTOR:
-                # motor 2000_2000_2000_2000
-                self.activate_motor(split_msg[1])
-            case Command.CMD_SERVO:
-                # servo 0_90
-                self.activate_servo(split_msg[1])
-            case Command.CMD_LED:
-                # led 0x01_255_255_255
-                self.activate_led(split_msg[1])
-            case Command.CMD_SONIC:
-                # sonic
-                self.send_ultrasonic()
-            case Command.CMD_BUZZER:
-                # buzzer 1
-                self.activate_buzzer(split_msg[1])
-            case Command.CMD_LIGHT:
-                # ??
-                pass
-            case _:
-                print('Error, unknown command')
+        cmd = split_msg[0]
+        if cmd == Command.CMD_MOTOR:
+            # motor 2000_2000_2000_2000
+            self.activate_motor(split_msg[1])
+        elif cmd == Command.CMD_SERVO:
+            # servo 0_90
+            self.activate_servo(split_msg[1])
+        elif cmd == Command.CMD_LED:
+            # led 0x01_255_255_255
+            self.activate_led(split_msg[1])
+        elif cmd == Command.CMD_SONIC:
+            # sonic
+            self.send_ultrasonic()
+        elif cmd == Command.CMD_BUZZER:
+            # buzzer 1
+            self.activate_buzzer(split_msg[1])
+        elif cmd == Command.CMD_LIGHT:
+            # ??
+            pass
+        else:
+            print('Error, unknown command')
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000
