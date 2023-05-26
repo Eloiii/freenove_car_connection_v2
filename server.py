@@ -49,20 +49,16 @@ class Server:
         thread = Thread(target=self.waiting_for_connection)
         thread.start()
 
-        self.video_server = None
-        self.video_port = video_port
+        self.video_server = start_tcp_server(video_port)
+        self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        thread = Thread(target=self.waiting_for_camera_connection)
+        thread.start()
 
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
-
-    def start_video_server(self):
-        self.video_server = start_tcp_server(self.video_port)
-        self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        thread = Thread(target=self.waiting_for_camera_connection)
-        thread.start()
 
     def waiting_for_connection(self):
         while True:
