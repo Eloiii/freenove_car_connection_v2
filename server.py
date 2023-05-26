@@ -3,6 +3,7 @@ import struct
 import fcntl
 import sys
 import pickle
+import psutil
 from threading import *
 from command import *
 from car_utilities.Led import *
@@ -72,10 +73,11 @@ class Server:
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if(data==Command.CMD_DATA.value):
+                    if(data=="CMD_DATA"):
                         self.timestamp = datetime.timestamp(datetime.now())
-                        self.data.setData( self.adc.recvADC(2)*3 , float((self.adc.recvADC(2)*3)-7)/1.40*100, psutil.cpu_percent(), self.motor.getMotorModel())
+                        self.data.setData( self.adc.recvADC(2)*3 , float((self.adc.recvADC(2)*3)-7)/1.40*100, psutil.cpu_percent(), self.motor_manager.getMotorModel(),self.led_manager.ledsState())
                         client.send(pickle.dumps(self.data))
+                        print("data sent to the client")
                     else:
                         print("Invalid request :", data)
 

@@ -127,7 +127,7 @@ class Led:
         ledsRGB = []
         for i in range(self.strip.numPixels()):
             rgbcode = self.strip.getPixelColor(i)
-            ledsRGB.append(((rgbcode & 0x00FF0000) >> 16),((rgbcode & 0x00FF00) >> 8),(rgbcode & 0x0000FF))
+            ledsRGB.append( ((rgbcode & 0x00FF0000) >> 16,(rgbcode & 0x00FF00) >> 8,rgbcode & 0x0000FF) )
         return ledsRGB
     
 led=Led()                 

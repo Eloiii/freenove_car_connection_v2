@@ -1,6 +1,7 @@
 import socket
 import sys
 import pickle
+import time
 from threading import *
 from command import *
 from car_utilities.DataCollection import *
@@ -34,17 +35,19 @@ class Client:
     def data_collection(self, ip):
         TCP_PORT = 5005 
         while True:
+            time.sleep(15)
             try:
                 client_data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 client_data_socket.connect((ip, TCP_PORT))
                 while True:
+                    client_data_socket.send("CMD_DATA".encode("utf-8"))
                     serialized_data = client_data_socket.recv(1024)
                     if not serialized_data:
                         print("Connexion with server lost...")
                         break
                     data = pickle.loads(serialized_data)
                     data.getData()
-                    time.sleep(15)
+                    #print("Envois de la requete")
 
             except socket.error as e:
                 # Gérer les erreurs de connexion
