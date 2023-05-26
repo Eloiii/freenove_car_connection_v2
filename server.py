@@ -4,7 +4,7 @@ import fcntl
 import sys
 import io
 from picamera2 import Picamera2, Preview
-from picamera2.encoders import JpegEncoder
+from picamera2.encoders import JpegEncoder, H264Encoder, MJPEGEncoder
 from picamera2.outputs import FileOutput
 from picamera2.encoders import Quality
 from threading import *
@@ -26,52 +26,37 @@ class StreamingOutput(io.BufferedIOBase):
             self.condition.notify_all()
 
 
+def start_tcp_server(port):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # retrieve IP address linked to the 'wlan0' interface
+    ip_addr = socket.inet_ntoa(fcntl.ioctl(server.fileno(),
+                                           0x8915,
+                                           struct.pack('256s', b'wlan0'[:15])
+                                           )[20:24])
+    server.bind((ip_addr, port))
+    server.listen(1)
+    print(f"Server up, listening on {ip_addr}:{port}")
+    return server
+
+
 class Server:
 
     def __init__(self, port=8787, video_port=8888):
-        self.server = None
-        self.video_server = None
-        self.start_tcp_server(port)
-        self.start_udp_server(video_port)
+        self.server = start_tcp_server(port)
+        thread = Thread(target=self.waiting_for_connection)
+        thread.start()
+
+        self.video_server = start_tcp_server(video_port)
+        self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        thread = Thread(target=self.waiting_for_camera_connection)
+        thread.start()
+
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
-
-    def start_tcp_server(self, port):
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        ip_addr = socket.inet_ntoa(fcntl.ioctl(server.fileno(),
-                                               0x8915,
-                                               struct.pack('256s', b'wlan0'[:15])
-                                               )[20:24])
-
-        server.bind((ip_addr, port))
-        server.listen(1)
-
-        self.server = server
-
-        print(f"Server up, listening on {ip_addr}:{port}")
-
-        thread = Thread(target=self.waiting_for_connection)
-        thread.start()
-
-    def start_udp_server(self, port):
-        server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        ip_addr = socket.inet_ntoa(fcntl.ioctl(server.fileno(),
-                                               0x8915,
-                                               struct.pack('256s', b'wlan0'[:15])
-                                               )[20:24])
-
-        server.bind((ip_addr, port))
-
-        self.video_server = server
-
-        print(f"Video server up, listening on {ip_addr}:{port}")
-
-        thread = Thread(target=self.waiting_for_camera_connection)
-        thread.start()
 
     def waiting_for_connection(self):
         client, client_addr = self.server.accept()
@@ -86,26 +71,30 @@ class Server:
             print(data)
 
     def waiting_for_camera_connection(self):
+
+        connection, client_address = self.video_server.accept()
+        connection = connection.makefile('wb')
+
+        camera = Picamera2()
+        camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
+        output = StreamingOutput()
+        encoder = MJPEGEncoder(10000000)
+        camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
         while True:
-            data, client_addr = self.video_server.recvfrom(1024)
-            print(f'{data} from {client_addr}')
-            self.video_server.sendto('oui'.encode(), client_addr)
-            # print("New video connection from ", client_addr)
-            # if data == 'camera_request':
-            #     camera = Picamera2()
-            #     camera.configure(camera.create_video_configuration(main={"size": (400,300)}))
-            #     encoder = JpegEncoder()
-            #     output = StreamingOutput()
-            #
-            #     camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
-            #     while True:
-            #         with output.condition:
-            #             output.condition.wait()
-            #             frame = output.frame
-            #         try:
-            #             len_frame = len(output.frame)
-            #             leng_bin = struct.pack('<I', len_frame)
-            #             self.video_server.sendto(, ())
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+            try:
+                lenFrame = len(output.frame)
+                # print("output .length:",lenFrame)
+                lengthBin = struct.pack('<I', lenFrame)
+                connection.write(lengthBin)
+                connection.write(frame)
+            except Exception as e:
+                camera.stop_recording()
+                camera.close()
+                print("End transmit ... ")
+                break
 
 
     """
