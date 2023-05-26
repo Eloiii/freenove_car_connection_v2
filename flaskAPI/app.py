@@ -1,13 +1,13 @@
 from flask import Flask, request
+
 from client import *
-from command import *
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def hello_world():  # put application's code here
-    return 'Hello World!'
+    return 'try /toggleBuzzer?value=1'
 
 
 @app.route('/toggleLed')
@@ -27,8 +27,8 @@ def toggle_buzzer():
     client.send_msg(f'buzzer {value}')
     client.close_connection()
 
-    return f'LED set to {value}'
+    return f'Buzzer set to {value}'
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run()
