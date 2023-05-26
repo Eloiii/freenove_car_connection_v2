@@ -110,8 +110,8 @@ class Server:
     
     def get_State(self):
         CPUPercent = psutil.cpu_percent()
-        MotorModel = Motor.getMotorModel() #(FR/FL/BR/BL)
-        LedsBrightness = Led.ledsState()
+        MotorModel = self.motor_manager.getMotorModel() #(FR/FL/BR/BL)
+        LedsBrightness = self.led_manager.ledsState()
         SonicCount = self.sonic_count
         self.sonic_count = 0
         print(f'CPU :{CPUPercent}%\nWheels:\nFR:{MotorModel[0]}|FL:{MotorModel[1]}|BR:{MotorModel[2]}|BL:{MotorModel[3]}\nLedsBrightness:{LedsBrightness}\nSonicCount:{SonicCount}')
