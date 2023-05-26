@@ -4,6 +4,12 @@ class Motor:
     def __init__(self):
         self.pwm = PCA9685(0x40, debug=True)
         self.pwm.setPWMFreq(50)
+
+        self.FrontRightWheelDuty = 0
+        self.FrontLeftWheelDuty = 0
+        self.BackRightWheelDuty = 0
+        self.BackLeftWheelDuty = 0
+
     def duty_range(self,duty1,duty2,duty3,duty4):
         if duty1>4095:
             duty1=4095
@@ -27,6 +33,7 @@ class Motor:
         return duty1,duty2,duty3,duty4
         
     def left_Upper_Wheel(self,duty):
+        self.FrontLeftWheelDuty = duty
         if duty>0:
             self.pwm.setMotorPwm(0,0)
             self.pwm.setMotorPwm(1,duty)
@@ -36,7 +43,9 @@ class Motor:
         else:
             self.pwm.setMotorPwm(0,4095)
             self.pwm.setMotorPwm(1,4095)
+
     def left_Lower_Wheel(self,duty):
+        self.BackLeftWheelDuty = duty
         if duty>0:
             self.pwm.setMotorPwm(3,0)
             self.pwm.setMotorPwm(2,duty)
@@ -46,7 +55,9 @@ class Motor:
         else:
             self.pwm.setMotorPwm(2,4095)
             self.pwm.setMotorPwm(3,4095)
+
     def right_Upper_Wheel(self,duty):
+        self.FrontRightWheelDuty = duty
         if duty>0:
             self.pwm.setMotorPwm(6,0)
             self.pwm.setMotorPwm(7,duty)
@@ -56,7 +67,9 @@ class Motor:
         else:
             self.pwm.setMotorPwm(6,4095)
             self.pwm.setMotorPwm(7,4095)
+
     def right_Lower_Wheel(self,duty):
+        self.BackRightWheelDuty = duty
         if duty>0:
             self.pwm.setMotorPwm(4,0)
             self.pwm.setMotorPwm(5,duty)
@@ -74,8 +87,10 @@ class Motor:
         self.left_Lower_Wheel(duty2)
         self.right_Upper_Wheel(duty3)
         self.right_Lower_Wheel(duty4)
-            
-            
+    
+    def getMotorModel(self):
+        return self.FrontRightWheelDuty, self.FrontLeftWheelDuty, self.BackRightWheelDuty, self.BackLeftWheelDuty
+                
 PWM=Motor()          
 def loop(): 
     PWM.setMotorModel(2000,2000,2000,2000)       #Forward

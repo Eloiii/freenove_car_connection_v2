@@ -121,6 +121,13 @@ class Led:
             else:
                 self.colorWipe(self.strip, Color(0,0,0),10)
                 break
+
+    def ledsState(self):
+        ledsBrightness = []
+        for i in range(self.strip.numPixels()):
+            ledsBrightness[i] = self.strip.getPixelColor(i)
+        return ledsBrightness
+    
 led=Led()                 
 # Main program logic follows:
 if __name__ == '__main__':

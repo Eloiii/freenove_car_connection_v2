@@ -2,6 +2,7 @@ import socket
 import struct
 import fcntl
 import sys
+import psutil
 from threading import *
 from command import *
 from car_utilities.Led import *
@@ -20,6 +21,7 @@ class Server:
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
+        self.sonic_count = 0
 
     def start_tcp_server(self, port):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,6 +73,7 @@ class Server:
         elif cmd == Command.CMD_SONIC.value:
             # sonic
             self.send_ultrasonic()
+            self.sonic_count += 1
         elif cmd == Command.CMD_BUZZER.value:
             # buzzer 1
             self.activate_buzzer(split_msg[1])
@@ -79,6 +82,7 @@ class Server:
             pass
         else:
             print('Error, unknown command')
+        self.get_State()
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000
@@ -103,6 +107,17 @@ class Server:
 
     def activate_buzzer(self, param):
         self.buzzer_manager.run(param)
+    
+    def get_State(self):
+        CPUPercent = psutil.cpu_percent
+        MotorModel = Motor.getMotorModel #(FR/FL/BR/BL)
+        LedsBrightness = Led.ledsState
+        SonicCount = self.sonic_count
+        self.sonic_count = 0
+        print(f'CPU :{CPUPercent}%\nWheels:\nFR:{MotorModel[0]}|FL:{MotorModel[1]}|BR:{MotorModel[2]}|BL:{MotorModel[3]}\nLedsBrightness:{LedsBrightness}\nSonicCount:{SonicCount}')
+
+
+    
 
 
 if __name__ == '__main__':
