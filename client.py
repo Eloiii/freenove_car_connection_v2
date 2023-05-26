@@ -1,4 +1,3 @@
-import io
 import socket
 import struct
 import sys
@@ -6,29 +5,14 @@ from threading import *
 
 import cv2
 import numpy as np
-from PIL import Image
 
 
 def start_tcp_client(ip, port):
-
     client = socket.socket()
     client.connect((ip, port))
     print(f'Connected to {ip}:{port}')
 
     return client
-
-
-def IsValidImage4Bytes(buf):
-    bValid = True
-    if buf[6:10] in (b'JFIF', b'Exif'):
-        if not buf.rstrip(b'\0\r\n').endswith(b'\xff\xd9'):
-            bValid = False
-    else:
-        try:
-            Image.open(io.BytesIO(buf)).verify()
-        except:
-            bValid = False
-    return bValid
 
 
 class Client:
@@ -44,20 +28,21 @@ class Client:
         thread_send.start()
 
         self.video_client = start_tcp_client(ip, video_port)
-        self.request_video(ip, video_port)
+        self.request_video()
 
-    def request_video(self, ip, port):
+    def request_video(self):
         stream_bytes = b' '
         with self.video_client.makefile('rb') as connection:
             while True:
                 try:
                     stream_bytes = connection.read(4)
-                    leng = struct.unpack('<L', stream_bytes[:4])
-                    jpg = connection.read(leng[0])
+                    frame_length = struct.unpack('<L', stream_bytes[:4])
+                    jpg = connection.read(frame_length[0])
                     image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-                    cv2.imshow('image', image)
-                    if cv2.waitKey(10) == 13:
-                        break
+                    # showing camera live
+                    # cv2.imshow('image', image)
+                    # if cv2.waitKey(10) == 13:
+                    #     break
                 except Exception as e:
                     print(e)
                     cv2.destroyAllWindows()

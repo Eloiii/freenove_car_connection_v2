@@ -1,18 +1,20 @@
+import fcntl
+import io
 import socket
 import struct
-import fcntl
 import sys
-import io
-from picamera2 import Picamera2, Preview
-from picamera2.encoders import JpegEncoder, H264Encoder, MJPEGEncoder
-from picamera2.outputs import FileOutput
-from picamera2.encoders import Quality
 from threading import *
-from command import *
-from car_utilities.Led import *
+
+from picamera2 import Picamera2
+from picamera2.encoders import MJPEGEncoder
+from picamera2.encoders import Quality
+from picamera2.outputs import FileOutput
+
 from car_utilities.Buzzer import *
+from car_utilities.Led import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
+from command import *
 
 
 class StreamingOutput(io.BufferedIOBase):
@@ -85,17 +87,15 @@ class Server:
                 output.condition.wait()
                 frame = output.frame
             try:
-                lenFrame = len(output.frame)
-                # print("output .length:",lenFrame)
-                lengthBin = struct.pack('<I', lenFrame)
-                connection.write(lengthBin)
+                frame_length = len(output.frame)
+                frame_length_binary = struct.pack('<I', frame_length)
+                connection.write(frame_length_binary)
                 connection.write(frame)
-            except Exception as e:
+            except:
                 camera.stop_recording()
                 camera.close()
                 print("End transmit ... ")
                 break
-
 
     """
     msg shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
