@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Enter TCP server ip and port{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <ul>
+      <li><a href="/toggleBuzzer?value=1">Buzzer</a></li>
+  </ul>
+{% endblock %}
