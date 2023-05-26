@@ -2,6 +2,11 @@ import socket
 import struct
 import fcntl
 import sys
+import io
+from picamera2 import Picamera2, Preview
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs import FileOutput
+from picamera2.encoders import Quality
 from threading import *
 from command import *
 from car_utilities.Led import *
@@ -10,11 +15,24 @@ from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
 
 
+class StreamingOutput(io.BufferedIOBase):
+    def __init__(self):
+        self.frame = None
+        self.condition = Condition()
+
+    def write(self, buf):
+        with self.condition:
+            self.frame = buf
+            self.condition.notify_all()
+
+
 class Server:
 
-    def __init__(self, port=8787):
+    def __init__(self, port=8787, video_port=8888):
         self.server = None
+        self.video_server = None
         self.start_tcp_server(port)
+        self.start_udp_server(video_port)
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
@@ -39,6 +57,22 @@ class Server:
         thread = Thread(target=self.waiting_for_connection)
         thread.start()
 
+    def start_udp_server(self, port):
+        server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_addr = socket.inet_ntoa(fcntl.ioctl(server.fileno(),
+                                               0x8915,
+                                               struct.pack('256s', b'wlan0'[:15])
+                                               )[20:24])
+
+        server.bind((ip_addr, port))
+
+        self.video_server = server
+
+        print(f"Video server up, listening on {ip_addr}:{port}")
+
+        thread = Thread(target=self.waiting_for_camera_connection)
+        thread.start()
+
     def waiting_for_connection(self):
         client, client_addr = self.server.accept()
         print("New connection from ", client_addr)
@@ -50,6 +84,29 @@ class Server:
             else:
                 self.treat_msg(data)
             print(data)
+
+    def waiting_for_camera_connection(self):
+        while True:
+            data, client_addr = self.video_server.recvfrom(1024)
+            print(f'{data} from {client_addr}')
+            self.video_server.sendto('oui'.encode(), client_addr)
+            # print("New video connection from ", client_addr)
+            # if data == 'camera_request':
+            #     camera = Picamera2()
+            #     camera.configure(camera.create_video_configuration(main={"size": (400,300)}))
+            #     encoder = JpegEncoder()
+            #     output = StreamingOutput()
+            #
+            #     camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
+            #     while True:
+            #         with output.condition:
+            #             output.condition.wait()
+            #             frame = output.frame
+            #         try:
+            #             len_frame = len(output.frame)
+            #             leng_bin = struct.pack('<I', len_frame)
+            #             self.video_server.sendto(, ())
+
 
     """
     msg shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
@@ -106,4 +163,4 @@ class Server:
 
 
 if __name__ == '__main__':
-    Server(int(sys.argv[1]))
+    Server(int(sys.argv[1]), int(sys.argv[2]))
