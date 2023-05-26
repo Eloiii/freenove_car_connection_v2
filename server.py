@@ -61,16 +61,25 @@ class Server:
         self.adc = Adc()
 
     def waiting_for_connection(self):
-        client, client_addr = self.server.accept()
-        print("New connection from ", client_addr)
+        while True:
+            client, client_addr = self.server.accept()
+            print("New connection from ", client_addr)
+            thread = Thread(target=self.receive_data, args=(client, client_addr))
+            thread.start()
 
+    def receive_data(self, client, client_addr):
         while True:
             data = client.recv(1024).decode('utf-8')
+            """
+            TODO 
+            if client disconnect, wait for another, don't crash the server
+            """
             if not data:
                 break
             else:
                 self.treat_msg(data)
             print(data)
+        client.close()
 
     def waiting_for_camera_connection(self):
 
