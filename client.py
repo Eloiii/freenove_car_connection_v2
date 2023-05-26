@@ -1,7 +1,9 @@
 import socket
 import sys
+import pickle
 from threading import *
 from command import *
+from car_utilities.DataCollection import *
 
 
 class Client:
@@ -21,9 +23,45 @@ class Client:
         thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
         thread_send = Thread(target=self.send_msg)
+        thread_data = Thread(target=self.data_collection(ip))
 
         thread.start()
         thread_send.start()
+        thread_data.start()
+
+
+
+    def data_collection(self, ip):
+        TCP_PORT = 5005 
+        while True:
+            try:
+                client_data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_data_socket.connect((ip, TCP_PORT))
+                while True:
+                    serialized_data = client_data_socket.recv(1024)
+                    if not serialized_data:
+                        print("Connexion with server lost...")
+                        break
+                    data = pickle.loads(serialized_data)
+                    data.getData()
+                    time.sleep(15)
+
+            except socket.error as e:
+                # Gérer les erreurs de connexion
+                print("Erreur de connexion :", str(e))
+                print("Tentative de reconnexion dans 5 secondes...")
+                time.sleep(5)
+                continue
+
+            except KeyboardInterrupt:
+                # Gérer l'interruption par l'utilisateur
+                print("Arrêt de l'écoute.")
+                break
+
+            finally:
+                # Fermer la socket
+                client_data_socket.close()
+    
 
     def waiting_for_message(self):
         while True:

@@ -2,49 +2,56 @@ import socket
 import struct
 import fcntl
 import sys
-import psutil
+import pickle
 from threading import *
 from command import *
 from car_utilities.Led import *
 from car_utilities.Buzzer import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
+from car_utilities.DataCollection import *
 
 
 class Server:
 
-    def __init__(self, port=8787):
-        self.server = None
-        self.start_tcp_server(port)
+    def __init__(self, port=8787, data_port=5005):
+
+        self.start_tcp_server(port, data_port)
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
-        self.sonic_count = 0
 
-    def start_tcp_server(self, port):
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.data = Data(motor=self.motor_manager, led=self.led_manager, buzzer=self.buzzer_manager, adc=self.adc)
 
-        ip_addr = socket.inet_ntoa(fcntl.ioctl(server.fileno(),
+       
+
+
+    def start_tcp_server(self, port, data_port):
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ip_addr = socket.inet_ntoa(fcntl.ioctl(self.server_socket.fileno(),
                                                0x8915,
                                                struct.pack('256s', b'wlan0'[:15])
                                                )[20:24])
+        self.server_socket.bind((ip_addr, port))
+        self.server_socket.listen(1)
+        self.data_socket.bind((ip_addr, data_port))
+        self.data_socket.listen(1)
 
-        server.bind((ip_addr, port))
-        server.listen(1)
-
-        self.server = server
 
         print(f"Server up, listening on {ip_addr}:{port}")
-
+        
         thread = Thread(target=self.waiting_for_connection)
         thread.start()
+        data_thread = Thread(target=self.data_collection)
+        thread.start()
+
 
     def waiting_for_connection(self):
-        client, client_addr = self.server.accept()
+        client, client_addr = self.server_socket.accept()
         print("New connection from ", client_addr)
-
         while True:
             data = client.recv(1024).decode('utf-8')
             if not data:
@@ -52,6 +59,36 @@ class Server:
             else:
                 self.treat_msg(data)
             print(data)
+
+
+    def data_collection(self):
+        while True:
+            # Accepter une nouvelle connexion
+            client, client_addr = self.data_socket.accept()
+
+            while True:
+                try:
+                    data = client.recv(1024).decode('utf-8')
+                    if not data:
+                        print("Connexion with client lost on data socket lost :", client_addr)
+                        break
+                    if(data==Command.CMD_DATA.value):
+                        self.data.setData()
+                        client.send(pickle.dumps(self.data))
+                    else:
+                        print("Invalid request :", data)
+
+                except socket.error as e:
+                    print("Data socket error", client_addr, ":", str(e))
+                    break
+
+                except KeyboardInterrupt:
+                    print("Data socket closing...")
+                    break
+            client.close()
+        self.data_socket.close()
+
+
 
     """
     msg shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
@@ -107,17 +144,7 @@ class Server:
 
     def activate_buzzer(self, param):
         self.buzzer_manager.run(param)
-    
-    def get_State(self):
-        CPUPercent = psutil.cpu_percent()
-        MotorModel = self.motor_manager.getMotorModel() #(FR/FL/BR/BL)
-        LedsBrightness = self.led_manager.ledsState()
-        SonicCount = self.sonic_count
-        self.sonic_count = 0
-        print(f'CPU :{CPUPercent}%\nWheels:\nFR:{MotorModel[0]}|FL:{MotorModel[1]}|BR:{MotorModel[2]}|BL:{MotorModel[3]}\nLedsBrightness:{LedsBrightness}\nSonicCount:{SonicCount}')
-
-
-    
+        self.data.buzz()
 
 
 if __name__ == '__main__':
