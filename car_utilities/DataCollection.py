@@ -1,21 +1,8 @@
-import psutil
 from datetime import datetime
-from car_utilities.Motor import *
-from car_utilities.Led import *
-from car_utilities.Buzzer import *
-from car_utilities.ADC import *
-
 
 class Data:
 
-    def __init__(self, motor: Motor, led: Led, buzzer: Buzzer, adc: Adc):
-        #Objects
-        self.motor = motor
-        self.led = led
-        self.buzzer = buzzer
-        self.adc = adc
-
-
+    def __init__(self):
         #Data
         self.timestamp = None
 
@@ -38,20 +25,21 @@ class Data:
     def reset_buzz_count(self):
         self.sonic_count = 0
 
-    def setData(self):
+    def setData(self,battery_voltage,battery_percent,CPU,motor_model,leds):
         '''
         Used by the server to update the current state of the car in the Data object
         '''
         self.timestamp = datetime.timestamp(datetime.now())
-        self.battery_voltage = self.adc.recvADC(2)*3
-        self.battery_percent = (float(self.battery_voltage)-7)/1.40*100
+
+        self.battery_voltage = battery_voltage
+        self.battery_percent = battery_percent
         #CAMERA DATA
 
 
 
-        self.CPU_use_percent = psutil.cpu_percent()
-        self.motor_model = self.motor.getMotorModel #(FR/FL/BR/BL)
-        self.leds_state = self.led.ledsState()
+        self.CPU_use_percent = CPU
+        self.motor_model = motor_model
+        self.leds_state = leds
 
         pass
 

@@ -46,7 +46,7 @@ class Server:
         thread = Thread(target=self.waiting_for_connection)
         thread.start()
         data_thread = Thread(target=self.data_collection)
-        thread.start()
+        data_thread.start()
 
 
     def waiting_for_connection(self):
@@ -73,7 +73,8 @@ class Server:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
                     if(data==Command.CMD_DATA.value):
-                        self.data.setData()
+                        self.timestamp = datetime.timestamp(datetime.now())
+                        self.data.setData( self.adc.recvADC(2)*3 , float((self.adc.recvADC(2)*3)-7)/1.40*100, psutil.cpu_percent(), self.motor.getMotorModel())
                         client.send(pickle.dumps(self.data))
                     else:
                         print("Invalid request :", data)
