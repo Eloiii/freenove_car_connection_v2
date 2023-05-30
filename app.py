@@ -1,6 +1,6 @@
 from flask import Flask, request, session, render_template, url_for, redirect
 
-from client import *
+from tcp_connections.client import *
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
