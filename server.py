@@ -41,15 +41,17 @@ def start_tcp_server(port):
                                            )[20:24])
     server.bind((ip_addr, port))
     server.listen(1)
-    print(f"Server up, listening on {ip_addr}:{port}")
     return server
 
 
 class Server:
 
-    def __init__(self, port=8787, video_port=8888, data_port=8666):
+    def __init__(self, port=8787, video_port=8888, data_port=5005):
         self.server = start_tcp_server(port)
+        print(f"Command server up, listening on {port}")
+
         self.data_socket = start_tcp_server(data_port)
+        print(f"Data server up, listening on {data_port}")
 
         self.motor_manager = Motor()
         self.servo_manager = Servo()
@@ -61,6 +63,7 @@ class Server:
 
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        print(f"Video server up, listening on {video_port}")
 
         data_thread = Thread(target=self.data_collection)
         data_thread.start()
@@ -70,15 +73,11 @@ class Server:
         thread_camera.start()
 
     def waiting_for_connection(self):
-        try:
-            while True:
-                client, client_addr = self.server.accept()
-                print("New connection from ", client_addr)
-                thread = Thread(target=self.receive_data, args=(client, client_addr))
-                thread.start()
-        except KeyboardInterrupt:
-            print("[!] Keyboard Interrupted!")
-            self.close_server()
+        while True:
+            client, client_addr = self.server.accept()
+            print("New connection from ", client_addr)
+            thread = Thread(target=self.receive_data, args=(client, client_addr))
+            thread.start()
 
     def close_server(self):
         self.server.shutdown(socket.SHUT_RDWR)
@@ -87,6 +86,7 @@ class Server:
     def receive_data(self, client, client_addr):
         while True:
             data = client.recv(1024).decode('utf-8')
+            print(data)
             if not data:
                 break
             else:
@@ -219,4 +219,4 @@ class Server:
 
 
 if __name__ == '__main__':
-    Server(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
+    Server()
