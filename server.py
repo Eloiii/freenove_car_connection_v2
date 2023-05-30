@@ -68,16 +68,30 @@ class Server:
         thread.start()
 
     def waiting_for_connection(self):
-        client, client_addr = self.server.accept()
-        print("New connection from ", client_addr)
+        try:
+            while True:
+                client, client_addr = self.server.accept()
+                print("New connection from ", client_addr)
+                thread = Thread(target=self.receive_data, args=(client, client_addr))
+                thread.start()
+        except KeyboardInterrupt:
+            print("[!] Keyboard Interrupted!")
+            self.close_server()
 
+    def close_server(self):
+        self.server.shutdown(socket.SHUT_RDWR)
+        self.server.close()
+
+    def receive_data(self, client, client_addr):
         while True:
             data = client.recv(1024).decode('utf-8')
             if not data:
                 break
             else:
                 self.treat_msg(data)
-            print(data)
+            print(f'received {data}')
+        client.close()
+        print(f'Client {client_addr} disconnected')
 
     def waiting_for_camera_connection(self):
 
@@ -145,7 +159,9 @@ class Server:
             client.close()
 
     """
-    msg shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
+    msg shape : XXXX YYY_YYY_YYY_YYY
+    XXXX a value from Command Enum
+    YYYY_YYYY... parameters for the command XXXX
     """
 
     def treat_msg(self, msg):
@@ -172,7 +188,7 @@ class Server:
             # ??
             pass
         else:
-            print('Error, unknown command')
+            print(f'Error, unknown command {cmd}')
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000

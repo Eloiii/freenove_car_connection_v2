@@ -25,17 +25,24 @@ class Client:
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
+        self.video_client = None
+
         # thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
-
-        self.video_client = start_tcp_client(ip, video_port)
-        self.request_video()
+        # thread_send = Thread(target=self.send_msg)
+        # thread.start()
+        # thread_send.start()
 
         thread_send = Thread(target=self.send_msg)
         thread_data = Thread(target=self.data_collection(ip))
 
         thread_send.start()
         thread_data.start()
+
+    def connect_to_video_server(self):
+        self.video_client = start_tcp_client(self.server_ip, self.video_port)
+        thread_video = Thread(target=self.request_video)
+        thread_video.start()
 
     def request_video(self):
         stream_bytes = b' '
@@ -92,21 +99,25 @@ class Client:
                 break
             print(data)
 
-    def send_msg(self):
-        while True:
-            txt = input('? ').encode('utf-8')
-            n = self.client.send(txt)
-            if n != len(txt):
-                print('erreur d\'envoie')
-                break
+    # def send_msg(self):
+    #     while True:
+    #         txt = input('? ').encode('utf-8')
+    #         n = self.client.send(txt)
+    #         if n != len(txt):
+    #             print('erreur d\'envoie')
+    #             break
 
-    # def send_msg(self, data):
-    #     """
-    #     data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
-    #     """
-    #     n = self.client.send(data.encode('utf-8'))
-    #     if n != len(data):
-    #         print('sending error')
+    def send_msg(self, data):
+        """
+        data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
+        """
+        n = self.client.send(data.encode('utf-8'))
+        if n != len(data):
+            print('sending error')
+
+    def close_connection(self):
+        self.client.shutdown(socket.SHUT_RDWR)
+        self.client.close()
 
 
 if __name__ == '__main__':
