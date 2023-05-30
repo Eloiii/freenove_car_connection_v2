@@ -23,15 +23,9 @@ class Data:
         self.motor_model = None #A list of the use of each wheel FR|FL|BR|BL
         self.leds_state= None # A list of RGB code for each Leds
         self.ultrasonic_inUse = None #TO ADD
-        self.sonic_count = 0
-        
-    def buzz(self):
-        self.sonic_count += 1
+        self.buzzer_inUse = None
 
-    def reset_buzz_count(self):
-        self.sonic_count = 0
-
-    def setData(self,MAC:str=None,IP:str=None,battery_voltage:float=None,battery_percent:float=None,isRecording:bool=None,height=None,width=None,FPS=None,CPU:float=None,nb_process:int=None,motor_model=None,leds=None, ultrasonic=None):
+    def setData(self,MAC:str=None,IP:str=None,battery_voltage:float=None,battery_percent:float=None,isRecording:bool=None,height=None,width=None,FPS=None,CPU:float=None,nb_process:int=None,motor_model=None,leds=None, ultrasonic:bool=None, buzzer:bool=None):
         '''
         Used by the server to update the current state of the car in the Data object
         '''
@@ -48,13 +42,18 @@ class Data:
         self.nb_process = nb_process
         self.motor_model = motor_model
         self.leds_state = leds
-        self.Ultrasonic_inUse = ultrasonic
+        self.ultrasonic_inUse = ultrasonic
+        self.buzzer_inUse = buzzer
 
     def getData(self, samplin_rate:int=None):
         '''
-        Used by the client to save the data into the Database
+        Used by the client to retrieve the data into the Database
         Furthermore update the sampling rate
         '''
         self.samplin_rate=samplin_rate
-        print(f'CPU :{self.CPU_use_percent}%\nWheels:\nFR:{self.motor_model[0]}|FL:{self.motor_model[1]}|BR:{self.motor_model[2]}|BL:{self.motor_model[3]}\nLedsBrightness:{self.leds_state}\nSonicCount:{self.sonic_count}')
-        pass
+        self.printData()
+
+
+    def printData(self):
+        print(f'Car MAC address :{self.Car_MAC}\nCar IP Address :{self.Car_ip_address}\nSampling Rate :{self.samplin_rate}s\nTimestamp :{self.timestamp}\nBattery :{self.battery_voltage}V {self.battery_percent}%\nCPU :{self.CPU_use_percent}% | Number of process{self.nb_process}\nCamera : Is recording :{self.camera_is_recording} | Resolution :{self.camera_resolution_height}x{self.camera_resolution_width}  {self.camera_framerate}FPS\nWheels:\nFR:{self.motor_model[0]}|FL:{self.motor_model[1]}|BR:{self.motor_model[2]}|BL:{self.motor_model[3]}\nLedsBrightness:{self.leds_state}\Ultrasonic:{self.ultrasonic_inUse}\nBuzzer: {self.buzzer_inUse}')
+

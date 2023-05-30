@@ -68,7 +68,7 @@ class Server:
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print(f"Video server up, listening on {video_port}")
-
+        
         data_thread = Thread(target=self.data_collection)
         data_thread.start()
         thread = Thread(target=self.waiting_for_connection)
@@ -150,12 +150,11 @@ class Server:
                                           height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
                                           FPS = None,#cap.get(cv2.CAP_PROP_FPS),
                                           CPU=psutil.cpu_percent(),
-                                          nb_process=len(psutil.process_iter()),
+                                          nb_process=None,#len(psutil.process_iter()), MARCHE PAS <-----------------------------
                                           motor_model=self.motor_manager.getMotorModel(),
                                           leds=self.led_manager.ledsState(),
                                           ultrasonic=None)            
                         client.send(pickle.dumps(self.data))
-                        self.data.reset_buzz_count()
                     else:
                         print("Invalid request :", str(data))
 
@@ -197,6 +196,14 @@ class Server:
         elif cmd == Command.CMD_LIGHT.value:
             # ??
             pass
+        elif cmd == Command.CMD_DATACOLLECTION.value:
+            if(split_msg[1] == 1):
+                print("Start to save in the DB : NOT YET IMPLEMENTED")
+                pass
+            elif(split_msg[1] == 0):
+                print("Stop to save in the DB : NOT YET IMPLEMENTED")
+                pass
+            #TO DO START AND CLOSE THE DATA COLLECTION IN THE DB TO DO
         else:
             print(f'Error, unknown command {cmd}')
 
@@ -223,7 +230,6 @@ class Server:
 
     def activate_buzzer(self, param):
         self.buzzer_manager.run(param)
-        self.data.buzz()
 
 
 if __name__ == '__main__':

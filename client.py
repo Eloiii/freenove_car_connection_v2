@@ -25,6 +25,7 @@ class Client:
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
         self.video_client = None
+        self.last_state = None
 
         # thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
@@ -32,9 +33,7 @@ class Client:
         # thread.start()
         # thread_send.start()
 
-        self.client_data_socket = start_tcp_client(ip, 5005)
         thread_data = Thread(target=self.data_collection, args=(ip,))
-
         thread_data.start()
 
     def connect_to_video_server(self):
@@ -66,16 +65,18 @@ class Client:
         When connected, request for the current state of the car every "timer" value in seconds
         """
         while True:
+            self.client_data_socket = start_tcp_client(ip, 5005)
             try:
-                self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
-                serialized_data = self.client_data_socket.recv(1024)
-                if not serialized_data:
-                    print("Connexion with server lost...")
-                    break
-                data = pickle.loads(serialized_data)
-                self.client_data_socket.close()
-                data.getData()
-                time.sleep(timer)
+                while True:
+                        self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                        serialized_data = self.client_data_socket.recv(1024)
+                        if not serialized_data:
+                            print("Connexion with server lost...")
+                            break
+                        data = pickle.loads(serialized_data)
+                        self.last_state = data
+                        data.getData(samplin_rate=timer) #/!\ A CHNAGER PLUS TARD
+                        time.sleep(timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
                 print("Trying to reconnect in 5 seconds...")
