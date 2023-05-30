@@ -1,9 +1,10 @@
 from datetime import datetime
 
+
 class Data:
 
     def __init__(self):
-        #Data
+        # Data
         self.timestamp = None
         self.battery_percent = None
         self.battery_voltage = None
@@ -14,16 +15,17 @@ class Data:
         self.CPU_use_percent = None
         self.nb_process = None
         self.motor_model = None
-        self.leds_state= None
+        self.leds_state = None
         self.sonic_count = 0
 
-        
     def buzz(self):
-        self.sonic_count +=1
+        self.sonic_count += 1
+
     def reset_buzz_count(self):
         self.sonic_count = 0
 
-    def setData(self,battery_voltage=None,battery_percent=None,isRecording=None,height=None,width=None,FPS=None,CPU=None,motor_model=None,leds=None):
+    def setData(self, battery_voltage=None, battery_percent=None, isRecording=None, height=None, width=None, FPS=None,
+                CPU=None, motor_model=None, leds=None):
         '''
         Used by the server to update the current state of the car in the Data object
         '''
@@ -42,5 +44,6 @@ class Data:
         '''
         Used by the client to save the data into the Database
         '''
-        print(f'CPU :{self.CPU_use_percent}%\nWheels:\nFR:{self.motor_model[0]}|FL:{self.motor_model[1]}|BR:{self.motor_model[2]}|BL:{self.motor_model[3]}\nLedsBrightness:{self.leds_state}\nSonicCount:{self.sonic_count}')
+        print(
+            f'CPU :{self.CPU_use_percent}%\nWheels:\nFR:{self.motor_model[0]}|FL:{self.motor_model[1]}|BR:{self.motor_model[2]}|BL:{self.motor_model[3]}\nLedsBrightness:{self.leds_state}\nSonicCount:{self.sonic_count}')
         pass

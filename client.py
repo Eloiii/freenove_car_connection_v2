@@ -92,21 +92,21 @@ class Client:
                 break
             print(data)
 
-    # def send_msg(self):
-    #     while True:
-    #         txt = input('? ').encode('utf-8')
-    #         n = self.client.send(txt)
-    #         if n != len(txt):
-    #             print('erreur d\'envoie')
-    #             break
+    def send_msg(self):
+        while True:
+            txt = input('? ').encode('utf-8')
+            n = self.client.send(txt)
+            if n != len(txt):
+                print('erreur d\'envoie')
+                break
 
-    def send_msg(self, data):
-        """
-        data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
-        """
-        n = self.client.send(data.encode('utf-8'))
-        if n != len(data):
-            print('sending error')
+    # def send_msg(self, data):
+    #     """
+    #     data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
+    #     """
+    #     n = self.client.send(data.encode('utf-8'))
+    #     if n != len(data):
+    #         print('sending error')
 
 
 if __name__ == '__main__':
