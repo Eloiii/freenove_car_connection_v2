@@ -4,6 +4,7 @@ import fcntl
 import sys
 import pickle
 import psutil
+import uuid
 from threading import *
 from command import *
 from car_utilities.Led import *
@@ -12,6 +13,10 @@ from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
 from car_utilities.DataCollection import *
 
+def get_mac_address():
+    mac = uuid.getnode()
+    mac_address = ':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
+    return mac_address
 
 class Server:
 
@@ -23,7 +28,7 @@ class Server:
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
-        self.data = Data(motor=self.motor_manager, led=self.led_manager, buzzer=self.buzzer_manager, adc=self.adc)
+        self.data = Data()
 
 
     def start_tcp_server(self, port, data_port):
@@ -72,7 +77,9 @@ class Server:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
                     if(data== Command.CMD_DATA.value):
-                        self.data.setData(battery_voltage=self.adc.recvADC(2)*3,
+                        self.data.setData(MAC=get_mac_address(),
+                                          IP=None,
+                                          battery_voltage=self.adc.recvADC(2)*3,
                                           battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
                                           #cap = cv2.VideoCapture(0)
                                           isRecording=False,#cap.isOpened(),
@@ -80,8 +87,10 @@ class Server:
                                           height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
                                           FPS = None,#cap.get(cv2.CAP_PROP_FPS),
                                           CPU=psutil.cpu_percent(),
+                                          nb_process=len(psutil.process_iter()),
                                           motor_model=self.motor_manager.getMotorModel(),
-                                          leds=self.led_manager.ledsState())            
+                                          leds=self.led_manager.ledsState(),
+                                          ultrasonic=None)            
                         client.send(pickle.dumps(self.data))
                         self.data.reset_buzz_count()
                     else:
@@ -127,7 +136,6 @@ class Server:
             pass
         else:
             print('Error, unknown command')
-        self.get_State()
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000

@@ -24,7 +24,7 @@ class Client:
         thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
         thread_send = Thread(target=self.send_msg)
-        thread_data = Thread(target=self.data_collection(ip))
+        thread_data = Thread(target=self.data_collection, args=(ip,))
 
         thread.start()
         thread_send.start()
@@ -53,7 +53,7 @@ class Client:
                 time.sleep(timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
-                print("Trying to  reconnect in 5 seconds...")
+                print("Trying to reconnect in 5 seconds...")
                 time.sleep(5)
                 continue
             except KeyboardInterrupt:
