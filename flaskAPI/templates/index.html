@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Enter TCP server ip and port{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="ip">IP</label>
+    <input name="ip" id="ip" value="{{ request.form['ip'] }}" required>
+    <label for="port">Port</label>
+    <input name="port" id="port" value="{{ request.form['port'] }}" required>
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

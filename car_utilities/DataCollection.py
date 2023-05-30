@@ -26,7 +26,8 @@ class Data:
         self.sonic_count = 0
         
     def buzz(self):
-        self.sonic_count +=1
+        self.sonic_count += 1
+
     def reset_buzz_count(self):
         self.sonic_count = 0
 
