@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 def new_ID():
@@ -52,6 +53,9 @@ class Data:
         '''
         self.samplin_rate=samplin_rate
         self.printData()
+
+    def get_JSON(self):
+        return json.dumps(self.__dict__)
 
 
     def printData(self):
