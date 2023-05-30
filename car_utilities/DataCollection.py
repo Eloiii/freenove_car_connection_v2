@@ -59,5 +59,6 @@ class Data:
 
 
     def printData(self):
-        print(f'Car MAC address :{self.Car_MAC}\nCar IP Address :{self.Car_ip_address}\nSampling Rate :{self.samplin_rate}s\nTimestamp :{self.timestamp}\nBattery :{self.battery_voltage}V {self.battery_percent}%\nCPU :{self.CPU_use_percent}% | Number of process{self.nb_process}\nCamera : Is recording :{self.camera_is_recording} | Resolution :{self.camera_resolution_height}x{self.camera_resolution_width}  {self.camera_framerate}FPS\nWheels:\nFR:{self.motor_model[0]}|FL:{self.motor_model[1]}|BR:{self.motor_model[2]}|BL:{self.motor_model[3]}\nLedsBrightness:{self.leds_state}\Ultrasonic:{self.ultrasonic_inUse}\nBuzzer: {self.buzzer_inUse}')
+        pass
+#        print(f'Car MAC address :{self.Car_MAC}\nCar IP Address :{self.Car_ip_address}\nSampling Rate :{self.samplin_rate}s\nTimestamp :{self.timestamp}\nBattery :{self.battery_voltage}V {self.battery_percent}%\nCPU :{self.CPU_use_percent}% | Number of process{self.nb_process}\nCamera : Is recording :{self.camera_is_recording} | Resolution :{self.camera_resolution_height}x{self.camera_resolution_width}  {self.camera_framerate}FPS\nWheels:\nFR:{self.motor_model[0]}|FL:{self.motor_model[1]}|BR:{self.motor_model[2]}|BL:{self.motor_model[3]}\nLedsBrightness:{self.leds_state}\Ultrasonic:{self.ultrasonic_inUse}\nBuzzer: {self.buzzer_inUse}')
 
