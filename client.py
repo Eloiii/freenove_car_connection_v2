@@ -1,14 +1,14 @@
-import socket
-import sys
 import pickle
+import socket
+import struct
+import sys
 import time
 from threading import *
-from command import *
-from car_utilities.DataCollection import *
-
 
 import cv2
 import numpy as np
+
+from command import *
 
 
 def start_tcp_client(ip, port):
@@ -54,11 +54,6 @@ class Client:
                     print(e)
                     cv2.destroyAllWindows()
                     break
-        thread.start()
-        thread_send.start()
-        thread_data.start()
-
-
 
     def data_collection(self, ip, timer=5):
         '''
@@ -90,7 +85,6 @@ class Client:
             finally:
                 client_data_socket.close()
 
-
     def waiting_for_message(self):
         while True:
             data = self.client.recv(1024).decode('utf-8')
@@ -98,21 +92,21 @@ class Client:
                 break
             print(data)
 
-    def send_msg(self):
-        while True:
-            txt = input('? ').encode('utf-8')
-            n = self.client.send(txt)
-            if n != len(txt):
-                print('erreur d\'envoie')
-                break
+    # def send_msg(self):
+    #     while True:
+    #         txt = input('? ').encode('utf-8')
+    #         n = self.client.send(txt)
+    #         if n != len(txt):
+    #             print('erreur d\'envoie')
+    #             break
 
-    # def send_msg(self, data):
-    #     """
-    #     data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
-    #     """
-    #     n = self.client.send(data.encode('utf-8'))
-    #     if n != len(data):
-    #         print('sending error')
+    def send_msg(self, data):
+        """
+        data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
+        """
+        n = self.client.send(data.encode('utf-8'))
+        if n != len(data):
+            print('sending error')
 
 
 if __name__ == '__main__':

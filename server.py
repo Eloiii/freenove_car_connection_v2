@@ -47,7 +47,7 @@ def start_tcp_server(port):
 
 class Server:
 
-    def __init__(self, port=8787, video_port=8888, data_port):
+    def __init__(self, port=8787, video_port=8888, data_port=8666):
         self.server = start_tcp_server(port)
         self.data_socket = start_tcp_server(data_port)
         thread = Thread(target=self.waiting_for_connection)
@@ -104,14 +104,13 @@ class Server:
                 print("End transmit ... ")
                 break
 
-
     def data_collection(self):
-        '''
+        """
         When the data_socket is open.
         This function put the socket in listening mode for a client to connect.
         When the client is connected, the socket wait for it to send a request for the data of the car and send them to him when he request them
         using pickle serialization.
-        '''
+        """
         while True:
             client, client_addr = self.data_socket.accept()
             while True:
@@ -120,14 +119,14 @@ class Server:
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if(data== Command.CMD_DATA.value):
-                        self.data.setData(battery_voltage=self.adc.recvADC(2)*3,
-                                          battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
-                                          #cap = cv2.VideoCapture(0)
-                                          isRecording=False,#cap.isOpened(),
-                                          width = None,#cap.get(cv2.CAP_PROP_FRAME_WIDTH),
-                                          height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
-                                          FPS = None,#cap.get(cv2.CAP_PROP_FPS),
+                    if data == Command.CMD_DATA.value:
+                        self.data.setData(battery_voltage=self.adc.recvADC(2) * 3,
+                                          battery_percent=float((self.adc.recvADC(2) * 3) - 7) / 1.40 * 100,
+                                          # cap = cv2.VideoCapture(0)
+                                          isRecording=False,  # cap.isOpened(),
+                                          width=None,  # cap.get(cv2.CAP_PROP_FRAME_WIDTH),
+                                          height=None,  # cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
+                                          FPS=None,  # cap.get(cv2.CAP_PROP_FPS),
                                           CPU=psutil.cpu_percent(),
                                           motor_model=self.motor_manager.getMotorModel(),
                                           leds=self.led_manager.ledsState())
@@ -144,8 +143,6 @@ class Server:
                     print("Data socket closing...")
                     break
             client.close()
-
-
 
     """
     msg shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
@@ -176,7 +173,6 @@ class Server:
             pass
         else:
             print('Error, unknown command')
-        self.get_State()
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000
@@ -205,4 +201,4 @@ class Server:
 
 
 if __name__ == '__main__':
-    Server(int(sys.argv[1]), int(sys.argv[2]))
+    Server(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
