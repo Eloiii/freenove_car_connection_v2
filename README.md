@@ -22,3 +22,15 @@ A flask server used to control the car via HTTP.
 Each HTTP endpoint opens a socket in order to perform action on the car.
 
 `./tcp_connection/car_utilities` contains files from [original repo](https://github.com/Freenove/Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi/tree/master/Code)
+
+### Usage
+
+#### Server
+
+Launch `sudo python server.py` on the car
+
+#### Client
+
+- Manual launch : `python client.py <car_ip>` on another device connected to the same network as the car.
+
+- Run `./venv/bin/flask --app app run` to start the Flask app.
