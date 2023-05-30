@@ -8,7 +8,7 @@ from threading import *
 import cv2
 import numpy as np
 
-from command import *
+from tcp_connections.command import *
 
 
 def start_tcp_client(ip, port):

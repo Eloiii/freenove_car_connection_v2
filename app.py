@@ -35,7 +35,7 @@ def choices():
 
 @app.route('/toggleLed')
 def toggle_led():
-    client = Client(session.get('ip'), session.get('port'), session.get('port'))
+    client = Client(session.get('ip'), int(session.get('port')))
     value = request.args.get('value')
     client.send_msg(f'led {value}')
     client.close_connection()

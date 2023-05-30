@@ -12,12 +12,12 @@ from picamera2.encoders import MJPEGEncoder
 from picamera2.encoders import Quality
 from picamera2.outputs import FileOutput
 
-from car_utilities.Buzzer import *
-from car_utilities.Led import *
-from car_utilities.Light import *
-from car_utilities.Ultrasonic import *
+from tcp_connections.car_utilities.Buzzer import *
+from tcp_connections.car_utilities.Led import *
+from tcp_connections.car_utilities.Light import *
+from tcp_connections.car_utilities.Ultrasonic import *
 from command import *
-from car_utilities.DataCollection import *
+from tcp_connections.car_utilities.DataCollection import *
 
 
 class StreamingOutput(io.BufferedIOBase):
