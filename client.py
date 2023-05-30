@@ -33,10 +33,8 @@ class Client:
         # thread.start()
         # thread_send.start()
 
-        thread_send = Thread(target=self.send_msg)
         thread_data = Thread(target=self.data_collection(ip))
 
-        thread_send.start()
         thread_data.start()
 
     def connect_to_video_server(self):

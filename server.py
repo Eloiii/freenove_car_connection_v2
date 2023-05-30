@@ -50,22 +50,24 @@ class Server:
     def __init__(self, port=8787, video_port=8888, data_port=8666):
         self.server = start_tcp_server(port)
         self.data_socket = start_tcp_server(data_port)
-        thread = Thread(target=self.waiting_for_connection)
-        thread.start()
+
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
-        self.data = Data(motor=self.motor_manager, led=self.led_manager, buzzer=self.buzzer_manager, adc=self.adc)
 
-        data_thread = Thread(target=self.data_collection)
-        data_thread.start()
+        self.data = Data(motor=self.motor_manager, led=self.led_manager, buzzer=self.buzzer_manager, adc=self.adc)
 
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        thread = Thread(target=self.waiting_for_camera_connection)
+
+        data_thread = Thread(target=self.data_collection)
+        data_thread.start()
+        thread = Thread(target=self.waiting_for_connection)
         thread.start()
+        thread_camera = Thread(target=self.waiting_for_camera_connection)
+        thread_camera.start()
 
     def waiting_for_connection(self):
         try:
