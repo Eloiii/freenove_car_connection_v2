@@ -35,6 +35,7 @@ class Led:
             self.strip.setPixelColor(i, color)
             self.strip.show()
             time.sleep(wait_ms/1000.0)
+            self.ledsState()
 
     def theaterChase(self,strip, color, wait_ms=50, iterations=10):
         """Movie theater light style chaser animation."""
@@ -121,6 +122,14 @@ class Led:
             else:
                 self.colorWipe(self.strip, Color(0,0,0),10)
                 break
+
+    def ledsState(self):
+        ledsRGB = []
+        for i in range(self.strip.numPixels()):
+            rgbcode = self.strip.getPixelColor(i)
+            ledsRGB.append( ((rgbcode & 0x00FF0000) >> 16,(rgbcode & 0x00FF00) >> 8,rgbcode & 0x0000FF) )
+        return ledsRGB
+    
 led=Led()                 
 # Main program logic follows:
 if __name__ == '__main__':
@@ -136,11 +145,8 @@ if __name__ == '__main__':
             led.rainbow(led.strip)
             led.rainbowCycle(led.strip)
             led.colorWipe(led.strip, Color(0,0,0),10)
-    except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program destroy() will be  executed.
+    except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program destroy() will be executed.
         led.colorWipe(led.strip, Color(0,0,0),10)
-
-        
-            
         
                     
 

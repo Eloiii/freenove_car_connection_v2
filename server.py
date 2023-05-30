@@ -3,6 +3,8 @@ import io
 import socket
 import struct
 import sys
+import pickle
+import psutil
 from threading import *
 
 from picamera2 import Picamera2
@@ -15,6 +17,7 @@ from car_utilities.Led import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
 from command import *
+from car_utilities.DataCollection import *
 
 
 class StreamingOutput(io.BufferedIOBase):
@@ -44,21 +47,25 @@ def start_tcp_server(port):
 
 class Server:
 
-    def __init__(self, port=8787, video_port=8888):
+    def __init__(self, port=8787, video_port=8888, data_port):
         self.server = start_tcp_server(port)
+        self.data_socket = start_tcp_server(data_port)
         thread = Thread(target=self.waiting_for_connection)
         thread.start()
-
-        self.video_server = start_tcp_server(video_port)
-        self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        thread = Thread(target=self.waiting_for_camera_connection)
-        thread.start()
-
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
+        self.data = Data(motor=self.motor_manager, led=self.led_manager, buzzer=self.buzzer_manager, adc=self.adc)
+
+        data_thread = Thread(target=self.data_collection)
+        data_thread.start()
+
+        self.video_server = start_tcp_server(video_port)
+        self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        thread = Thread(target=self.waiting_for_camera_connection)
+        thread.start()
 
     def waiting_for_connection(self):
         client, client_addr = self.server.accept()
@@ -97,6 +104,49 @@ class Server:
                 print("End transmit ... ")
                 break
 
+
+    def data_collection(self):
+        '''
+        When the data_socket is open.
+        This function put the socket in listening mode for a client to connect.
+        When the client is connected, the socket wait for it to send a request for the data of the car and send them to him when he request them
+        using pickle serialization.
+        '''
+        while True:
+            client, client_addr = self.data_socket.accept()
+            while True:
+                try:
+                    data = client.recv(1024).decode('utf-8')
+                    if not data:
+                        print("Connexion with client lost on data socket lost :", client_addr)
+                        break
+                    if(data== Command.CMD_DATA.value):
+                        self.data.setData(battery_voltage=self.adc.recvADC(2)*3,
+                                          battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
+                                          #cap = cv2.VideoCapture(0)
+                                          isRecording=False,#cap.isOpened(),
+                                          width = None,#cap.get(cv2.CAP_PROP_FRAME_WIDTH),
+                                          height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
+                                          FPS = None,#cap.get(cv2.CAP_PROP_FPS),
+                                          CPU=psutil.cpu_percent(),
+                                          motor_model=self.motor_manager.getMotorModel(),
+                                          leds=self.led_manager.ledsState())
+
+                        client.send(pickle.dumps(self.data))
+                    else:
+                        print("Invalid request :", str(data))
+
+                except socket.error as e:
+                    print("Data socket error", client_addr, ":", str(e))
+                    break
+
+                except KeyboardInterrupt:
+                    print("Data socket closing...")
+                    break
+            client.close()
+
+
+
     """
     msg shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
     """
@@ -117,6 +167,7 @@ class Server:
         elif cmd == Command.CMD_SONIC.value:
             # sonic
             self.send_ultrasonic()
+            self.sonic_count += 1
         elif cmd == Command.CMD_BUZZER.value:
             # buzzer 1
             self.activate_buzzer(split_msg[1])
@@ -125,6 +176,7 @@ class Server:
             pass
         else:
             print('Error, unknown command')
+        self.get_State()
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000
@@ -149,6 +201,7 @@ class Server:
 
     def activate_buzzer(self, param):
         self.buzzer_manager.run(param)
+        self.data.buzz()
 
 
 if __name__ == '__main__':

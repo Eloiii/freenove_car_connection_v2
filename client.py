@@ -1,7 +1,11 @@
 import socket
-import struct
 import sys
+import pickle
+import time
 from threading import *
+from command import *
+from car_utilities.DataCollection import *
+
 
 import cv2
 import numpy as np
@@ -23,12 +27,15 @@ class Client:
         self.client = start_tcp_client(ip, port)
         # thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
-        thread_send = Thread(target=self.send_msg)
-        # thread.start()
-        thread_send.start()
 
         self.video_client = start_tcp_client(ip, video_port)
         self.request_video()
+
+        thread_send = Thread(target=self.send_msg)
+        thread_data = Thread(target=self.data_collection(ip))
+
+        thread_send.start()
+        thread_data.start()
 
     def request_video(self):
         stream_bytes = b' '
@@ -47,6 +54,42 @@ class Client:
                     print(e)
                     cv2.destroyAllWindows()
                     break
+        thread.start()
+        thread_send.start()
+        thread_data.start()
+
+
+
+    def data_collection(self, ip, timer=5):
+        '''
+        Open a socket and try to connect to the given IP at the port 5005
+        When connected, request for the current state of the car every "timer" value in seconds
+        '''
+        TCP_PORT = 5005
+        while True:
+            try:
+                client_data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                client_data_socket.connect((ip, TCP_PORT))
+                client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                serialized_data = client_data_socket.recv(1024)
+                if not serialized_data:
+                    print("Connexion with server lost...")
+                    break
+                data = pickle.loads(serialized_data)
+                client_data_socket.close()
+                data.getData()
+                time.sleep(timer)
+            except socket.error as e:
+                print("Connexion error :", str(e))
+                print("Trying to  reconnect in 5 seconds...")
+                time.sleep(5)
+                continue
+            except KeyboardInterrupt:
+                print(str(e))
+                break
+            finally:
+                client_data_socket.close()
+
 
     def waiting_for_message(self):
         while True:
