@@ -57,7 +57,7 @@ class Server:
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
 
-        self.data = Data(motor=self.motor_manager, led=self.led_manager, buzzer=self.buzzer_manager, adc=self.adc)
+        self.data = Data()
 
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

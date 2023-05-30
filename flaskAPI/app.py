@@ -45,7 +45,7 @@ def toggle_led():
 
 @app.route('/toggleBuzzer')
 def toggle_buzzer():
-    client = Client(session.get('ip'), int(session.get('port')), int(session.get('port')))
+    client = Client(session.get('ip'), int(session.get('port')))
     value = request.args.get('value')
     client.send_msg(f'buzzer {value}')
     client.close_connection()

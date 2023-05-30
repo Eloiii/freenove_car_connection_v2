@@ -37,6 +37,7 @@ class Client:
 
         thread_data.start()
 
+
     def connect_to_video_server(self):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
         thread_video = Thread(target=self.request_video)
@@ -119,4 +120,4 @@ class Client:
 
 
 if __name__ == '__main__':
-    client_ui = Client(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
+    client_ui = Client(sys.argv[1])
