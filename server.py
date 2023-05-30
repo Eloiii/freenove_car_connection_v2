@@ -81,9 +81,9 @@ class Server:
                                           FPS = None,#cap.get(cv2.CAP_PROP_FPS),
                                           CPU=psutil.cpu_percent(),
                                           motor_model=self.motor_manager.getMotorModel(),
-                                          leds=self.led_manager.ledsState())
-                              
+                                          leds=self.led_manager.ledsState())            
                         client.send(pickle.dumps(self.data))
+                        self.data.reset_buzz_count()
                     else:
                         print("Invalid request :", str(data))
 
