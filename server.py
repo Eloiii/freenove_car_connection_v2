@@ -23,10 +23,7 @@ class Server:
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
-
         self.data = Data(motor=self.motor_manager, led=self.led_manager, buzzer=self.buzzer_manager, adc=self.adc)
-
-       
 
 
     def start_tcp_server(self, port, data_port):
@@ -40,10 +37,7 @@ class Server:
         self.server_socket.listen(1)
         self.data_socket.bind((ip_addr, data_port))
         self.data_socket.listen(1)
-
-
         print(f"Server up, listening on {ip_addr}:{port}")
-        
         thread = Thread(target=self.waiting_for_connection)
         thread.start()
         data_thread = Thread(target=self.data_collection)
@@ -63,23 +57,35 @@ class Server:
 
 
     def data_collection(self):
+        '''
+        When the data_socket is open.
+        This function put the socket in listening mode for a client to connect.
+        When the client is connected, the socket wait for it to send a request for the data of the car and send them to him when he request them
+        using pickle serialization.
+        '''
         while True:
-            # Accepter une nouvelle connexion
             client, client_addr = self.data_socket.accept()
-
             while True:
                 try:
                     data = client.recv(1024).decode('utf-8')
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if(data=="CMD_DATA"):
-                        self.timestamp = datetime.timestamp(datetime.now())
-                        self.data.setData( self.adc.recvADC(2)*3 , float((self.adc.recvADC(2)*3)-7)/1.40*100, psutil.cpu_percent(), self.motor_manager.getMotorModel(),self.led_manager.ledsState())
+                    if(data== Command.CMD_DATA.value):
+                        self.data.setData(battery_voltage=self.adc.recvADC(2)*3,
+                                          battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
+                                          #cap = cv2.VideoCapture(0)
+                                          isRecording=False,#cap.isOpened(),
+                                          width = None,#cap.get(cv2.CAP_PROP_FRAME_WIDTH),
+                                          height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
+                                          FPS = None,#cap.get(cv2.CAP_PROP_FPS),
+                                          CPU=psutil.cpu_percent(),
+                                          motor_model=self.motor_manager.getMotorModel(),
+                                          leds=self.led_manager.ledsState())
+                              
                         client.send(pickle.dumps(self.data))
-                        print("data sent to the client")
                     else:
-                        print("Invalid request :", data)
+                        print("Invalid request :", str(data))
 
                 except socket.error as e:
                     print("Data socket error", client_addr, ":", str(e))
@@ -89,7 +95,6 @@ class Server:
                     print("Data socket closing...")
                     break
             client.close()
-        self.data_socket.close()
 
 
 

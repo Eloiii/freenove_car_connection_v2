@@ -32,37 +32,34 @@ class Client:
 
 
 
-    def data_collection(self, ip):
+    def data_collection(self, ip, timer=5):
+        '''
+        Open a socket and try to connect to the given IP at the port 5005
+        When connected, request for the current state of the car every "timer" value in seconds
+        '''
         TCP_PORT = 5005 
         while True:
-            time.sleep(15)
             try:
                 client_data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 client_data_socket.connect((ip, TCP_PORT))
-                while True:
-                    client_data_socket.send("CMD_DATA".encode("utf-8"))
-                    serialized_data = client_data_socket.recv(1024)
-                    if not serialized_data:
-                        print("Connexion with server lost...")
-                        break
-                    data = pickle.loads(serialized_data)
-                    data.getData()
-                    #print("Envois de la requete")
-
+                client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                serialized_data = client_data_socket.recv(1024)
+                if not serialized_data:
+                    print("Connexion with server lost...")
+                    break
+                data = pickle.loads(serialized_data)
+                client_data_socket.close()
+                data.getData()
+                time.sleep(timer)
             except socket.error as e:
-                # Gérer les erreurs de connexion
-                print("Erreur de connexion :", str(e))
-                print("Tentative de reconnexion dans 5 secondes...")
+                print("Connexion error :", str(e))
+                print("Trying to  reconnect in 5 seconds...")
                 time.sleep(5)
                 continue
-
             except KeyboardInterrupt:
-                # Gérer l'interruption par l'utilisateur
-                print("Arrêt de l'écoute.")
+                print(str(e))
                 break
-
             finally:
-                # Fermer la socket
                 client_data_socket.close()
     
 
