@@ -33,24 +33,45 @@ def choices():
     return render_template('choices.html')
 
 
+def open_tcp_connection_and_send(command):
+    try:
+        client = Client(session.get('ip'), int(session.get('port')))
+        client.send_msg(command)
+        client.close_connection()
+    except Exception as err:
+        return f"{err}"
+
+
 @app.route('/toggleLed')
 def toggle_led():
-    client = Client(session.get('ip'), int(session.get('port')))
     value = request.args.get('value')
-    client.send_msg(f'led {value}')
-    client.close_connection()
+    err = open_tcp_connection_and_send(f'led {value}')
 
-    return f'LED set to {value}'
+    return err if err is not None else f'LED set to {value}'
 
 
 @app.route('/toggleBuzzer')
 def toggle_buzzer():
-    client = Client(session.get('ip'), int(session.get('port')))
     value = request.args.get('value')
-    client.send_msg(f'buzzer {value}')
-    client.close_connection()
+    err = open_tcp_connection_and_send(f'buzzer {value}')
 
-    return f'Buzzer set to {value}'
+    return err if err is not None else f'Buzzer set to {value}'
+
+
+@app.route('/setMotors')
+def set_motors():
+    value = request.args.get('value')
+    err = open_tcp_connection_and_send(f'motor {value}')
+
+    return err if err is not None else f'Motors set to {value}'
+
+
+@app.route('/setServo')
+def set_servo():
+    value = request.args.get('value')
+    err = open_tcp_connection_and_send(f'servo {value}')
+
+    return err if err is not None else f'Servo set to {value}'
 
 
 if __name__ == '__main__':
