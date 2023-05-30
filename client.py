@@ -33,10 +33,11 @@ class Client:
         # thread.start()
         # thread_send.start()
 
-        thread_data = Thread(target=self.data_collection(ip))
+        self.client_data_socket = start_tcp_client(ip, 5005)
+
+        thread_data = Thread(target=self.data_collection, args=(ip,))
 
         thread_data.start()
-
 
     def connect_to_video_server(self):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
@@ -62,22 +63,19 @@ class Client:
                     break
 
     def data_collection(self, ip, timer=5):
-        '''
+        """
         Open a socket and try to connect to the given IP at the port 5005
         When connected, request for the current state of the car every "timer" value in seconds
-        '''
-        TCP_PORT = 5005
+        """
         while True:
             try:
-                client_data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                client_data_socket.connect((ip, TCP_PORT))
-                client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
-                serialized_data = client_data_socket.recv(1024)
+                self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                serialized_data = self.client_data_socket.recv(1024)
                 if not serialized_data:
                     print("Connexion with server lost...")
                     break
                 data = pickle.loads(serialized_data)
-                client_data_socket.close()
+                self.client_data_socket.close()
                 data.getData()
                 time.sleep(timer)
             except socket.error as e:
@@ -89,7 +87,7 @@ class Client:
                 print(str(e))
                 break
             finally:
-                client_data_socket.close()
+                self.client_data_socket.close()
 
     def waiting_for_message(self):
         while True:
