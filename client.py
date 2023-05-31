@@ -4,11 +4,10 @@ import struct
 import sys
 import time
 from threading import *
-
 import cv2
 import numpy as np
-
 from command import *
+from car_utilities.DataCollection import *
 
 
 def start_tcp_client(ip, port):
@@ -26,6 +25,7 @@ class Client:
         self.client = start_tcp_client(ip, port)
         self.video_client = None
         self.last_state = None
+        self.data_collection_bool = False
 
         # thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
@@ -75,7 +75,9 @@ class Client:
                             break
                         data = pickle.loads(serialized_data)
                         self.last_state = data
-                        data.getData(samplin_rate=timer) #/!\ A CHNAGER PLUS TARD
+                        printData(data=data)
+                        if(self.data_collection_bool):
+                            getData(data=data,samplin_rate=timer)
                         time.sleep(timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
