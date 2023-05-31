@@ -8,10 +8,10 @@ import psutil
 import uuid
 from threading import *
 
-from picamera2 import Picamera2
-from picamera2.encoders import MJPEGEncoder
-from picamera2.encoders import Quality
-from picamera2.outputs import FileOutput
+#from picamera2 import Picamera2
+#from picamera2.encoders import MJPEGEncoder
+#from picamera2.encoders import Quality
+#from picamera2.outputs import FileOutput
 
 from car_utilities.Buzzer import *
 from car_utilities.Led import *
