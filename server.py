@@ -52,18 +52,19 @@ def start_tcp_server(port):
 class Server:
 
     def __init__(self, port=8787, video_port=8888, data_port=5005):
-        self.server = start_tcp_server(port)
-        print(f"Command server up, listening on {port}")
-
-        self.data_socket = start_tcp_server(data_port)
-        print(f"Data server up, listening on {data_port}")
-
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
         self.data = Data()
+        self.sonic = False
+
+        self.server = start_tcp_server(port)
+        print(f"Command server up, listening on {port}")
+
+        self.data_socket = start_tcp_server(data_port)
+        print(f"Data server up, listening on {data_port}")
 
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -110,7 +111,7 @@ class Server:
         encoder = MJPEGEncoder(10000000)
         camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
 
-        print(f'Camera recording in {camera.resolution} and {camera.framerate} fps') # TODO test
+        print(f'Camera recording in {camera.resolution} and {camera.framerate} fps') # TODO test ---------------------------------------------------------
 
         while True:
             with output.condition:
@@ -154,11 +155,11 @@ class Server:
                                 height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
                                 FPS = None,#cap.get(cv2.CAP_PROP_FPS),
                                 CPU=psutil.cpu_percent(),
-                                nb_process=None,#len(psutil.process_iter()), MARCHE PAS <-----------------------------
+                                nb_process=len(list(psutil.process_iter())),
                                 motor_model=self.motor_manager.getMotorModel(),
                                 leds=self.led_manager.ledsState(),
-                                ultrasonic=None,
-                                buzzer=None)        
+                                ultrasonic=self.sonic,
+                                buzzer=self.buzzer_manager.isOn())        
                         client.send(pickle.dumps(self.data))
                     else:
                         print("Invalid request :", str(data))
