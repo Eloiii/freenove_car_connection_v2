@@ -5,6 +5,7 @@ import struct
 import sys
 import pickle
 import psutil
+import uuid
 from threading import *
 
 from picamera2 import Picamera2
@@ -19,6 +20,10 @@ from tcp_connections.car_utilities.Ultrasonic import *
 from command import *
 from tcp_connections.car_utilities.DataCollection import *
 
+def get_mac_address():
+    mac = uuid.getnode()
+    mac_address = ':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
+    return mac_address
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -58,13 +63,12 @@ class Server:
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
         self.adc = Adc()
-
         self.data = Data()
 
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print(f"Video server up, listening on {video_port}")
-
+        
         data_thread = Thread(target=self.data_collection)
         data_thread.start()
         thread = Thread(target=self.waiting_for_connection)
@@ -135,18 +139,21 @@ class Server:
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if data == Command.CMD_DATA.value:
-                        self.data.setData(battery_voltage=self.adc.recvADC(2) * 3,
-                                          battery_percent=float((self.adc.recvADC(2) * 3) - 7) / 1.40 * 100,
-                                          # cap = cv2.VideoCapture(0)
-                                          isRecording=False,  # cap.isOpened(),
-                                          width=None,  # cap.get(cv2.CAP_PROP_FRAME_WIDTH),
-                                          height=None,  # cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
-                                          FPS=None,  # cap.get(cv2.CAP_PROP_FPS),
+                    if(data== Command.CMD_DATA.value):
+                        self.data.setData(MAC=get_mac_address(),
+                                          IP=None,
+                                          battery_voltage=self.adc.recvADC(2)*3,
+                                          battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
+                                          #cap = cv2.VideoCapture(0)
+                                          isRecording=False,#cap.isOpened(),
+                                          width = None,#cap.get(cv2.CAP_PROP_FRAME_WIDTH),
+                                          height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
+                                          FPS = None,#cap.get(cv2.CAP_PROP_FPS),
                                           CPU=psutil.cpu_percent(),
+                                          nb_process=None,#len(psutil.process_iter()), MARCHE PAS <-----------------------------
                                           motor_model=self.motor_manager.getMotorModel(),
-                                          leds=self.led_manager.ledsState())
-
+                                          leds=self.led_manager.ledsState(),
+                                          ultrasonic=None)            
                         client.send(pickle.dumps(self.data))
                     else:
                         print("Invalid request :", str(data))
@@ -189,6 +196,14 @@ class Server:
         elif cmd == Command.CMD_LIGHT.value:
             # ??
             pass
+        elif cmd == Command.CMD_DATACOLLECTION.value:
+            if(split_msg[1] == 1):
+                print("Start to save in the DB : NOT YET IMPLEMENTED")
+                pass
+            elif(split_msg[1] == 0):
+                print("Stop to save in the DB : NOT YET IMPLEMENTED")
+                pass
+            #TO DO START AND CLOSE THE DATA COLLECTION IN THE DB TO DO
         else:
             print(f'Error, unknown command {cmd}')
 
@@ -215,7 +230,6 @@ class Server:
 
     def activate_buzzer(self, param):
         self.buzzer_manager.run(param)
-        self.data.buzz()
 
 
 if __name__ == '__main__':

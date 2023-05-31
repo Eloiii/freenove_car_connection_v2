@@ -4,7 +4,7 @@ import struct
 import sys
 import time
 from threading import *
-
+from json import JSONEncoder
 import cv2
 import numpy as np
 
@@ -15,17 +15,40 @@ def start_tcp_client(ip, port):
     client = socket.socket()
     client.connect((ip, port))
     print(f'Connected to {ip}:{port}')
-
     return client
 
 
-class Client:
+class ClientMeta(type):
 
-    def __init__(self, ip, port=8787, video_port=8888):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class Client(metaclass=ClientMeta):
+
+    def __init__(self):
+        self.last_state = None
+        self.video_client = None
+        self.client = None
+        self.video_port = None
+        self.server_ip = None
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Client, cls).__new__(cls)
+        return cls.instance
+
+    def setup(self, ip, port=8787, video_port=8888):
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
         self.video_client = None
+        self.last_state = None
 
         # thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
@@ -33,11 +56,9 @@ class Client:
         # thread.start()
         # thread_send.start()
 
-        self.client_data_socket = start_tcp_client(ip, 5005)
-
         thread_data = Thread(target=self.data_collection, args=(ip,))
-
         thread_data.start()
+
 
     def connect_to_video_server(self):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
@@ -68,19 +89,22 @@ class Client:
         When connected, request for the current state of the car every "timer" value in seconds
         """
         while True:
+            self.client_data_socket = start_tcp_client(ip, 5005)
             try:
-                self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
-                serialized_data = self.client_data_socket.recv(1024)
-                if not serialized_data:
-                    print("Connexion with server lost...")
-                    break
-                data = pickle.loads(serialized_data)
-                self.client_data_socket.close()
-                data.getData()
-                time.sleep(timer)
+                while True:
+                        self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                        serialized_data = self.client_data_socket.recv(1024)
+                        if not serialized_data:
+                            print("Connexion with server lost...")
+                            break
+                        data = pickle.loads(serialized_data)
+                        self.last_state = data
+                        # print(f'{self} data collection {self.last_state}')
+                        data.getData(samplin_rate=timer) #/!\ A CHNAGER PLUS TARD
+                        time.sleep(timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
-                print("Trying to  reconnect in 5 seconds...")
+                print("Trying to reconnect in 5 seconds...")
                 time.sleep(5)
                 continue
             except KeyboardInterrupt:
@@ -115,6 +139,11 @@ class Client:
     def close_connection(self):
         self.client.shutdown(socket.SHUT_RDWR)
         self.client.close()
+
+    async def get_last_state(self):
+        while self.last_state is None:
+            continue
+        return self.last_state
 
 
 if __name__ == '__main__':

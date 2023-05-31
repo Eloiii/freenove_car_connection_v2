@@ -9,3 +9,4 @@ class Command(Enum):
     CMD_BUZZER = 'buzzer'
     CMD_LIGHT = 'light'
     CMD_DATA = 'data'
+    CMD_DATACOLLECTION = 'datacollection'
