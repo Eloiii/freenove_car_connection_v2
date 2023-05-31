@@ -1,4 +1,6 @@
-from flask import Flask, request, session, render_template, url_for, redirect
+import json
+
+from flask import Flask, request, session, render_template, url_for, redirect, jsonify
 
 from client import *
 
@@ -23,6 +25,9 @@ def hello_world():  # put application's code here
         session['ip'] = ip
         session['port'] = port
 
+        client = Client()
+        client.setup(session.get('ip'), int(session.get('port')))
+
         return redirect(url_for('choices'))
 
     return render_template('index.html')
@@ -34,23 +39,29 @@ def choices():
 
 
 @app.route('/toggleLed')
-def toggle_led():
-    client = Client(session.get('ip'), session.get('port'), session.get('port'))
+async def toggle_led():
+
+    client = Client()
+
     value = request.args.get('value')
     client.send_msg(f'led {value}')
-    client.close_connection()
 
-    return f'LED set to {value}'
+    data = await client.get_last_state()
+
+    return jsonify(data.__dict__)
 
 
 @app.route('/toggleBuzzer')
-def toggle_buzzer():
+async def toggle_buzzer():
     client = Client(session.get('ip'), int(session.get('port')))
     value = request.args.get('value')
     client.send_msg(f'buzzer {value}')
     client.close_connection()
 
-    return f'Buzzer set to {value}'
+    data = await client.get_last_state()
+
+    # return f'Buzzer set to {value}'
+    return jsonify(data)
 
 
 if __name__ == '__main__':

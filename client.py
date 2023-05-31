@@ -4,7 +4,7 @@ import struct
 import sys
 import time
 from threading import *
-
+from json import JSONEncoder
 import cv2
 import numpy as np
 
@@ -18,9 +18,32 @@ def start_tcp_client(ip, port):
     return client
 
 
-class Client:
+class ClientMeta(type):
 
-    def __init__(self, ip, port=8787, video_port=8888):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class Client(metaclass=ClientMeta):
+
+    def __init__(self):
+        self.last_state = None
+        self.video_client = None
+        self.client = None
+        self.video_port = None
+        self.server_ip = None
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(Client, cls).__new__(cls)
+        return cls.instance
+
+    def setup(self, ip, port=8787, video_port=8888):
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
@@ -35,6 +58,7 @@ class Client:
 
         thread_data = Thread(target=self.data_collection, args=(ip,))
         thread_data.start()
+
 
     def connect_to_video_server(self):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
@@ -75,6 +99,7 @@ class Client:
                             break
                         data = pickle.loads(serialized_data)
                         self.last_state = data
+                        # print(f'{self} data collection {self.last_state}')
                         data.getData(samplin_rate=timer) #/!\ A CHNAGER PLUS TARD
                         time.sleep(timer)
             except socket.error as e:
@@ -114,6 +139,11 @@ class Client:
     def close_connection(self):
         self.client.shutdown(socket.SHUT_RDWR)
         self.client.close()
+
+    async def get_last_state(self):
+        while self.last_state is None:
+            continue
+        return self.last_state
 
 
 if __name__ == '__main__':
