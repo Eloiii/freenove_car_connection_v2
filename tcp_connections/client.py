@@ -50,12 +50,6 @@ class Client(metaclass=ClientMeta):
         self.video_client = None
         self.last_state = None
 
-        # thread = Thread(target=self.waiting_for_message)
-        # Thread test pour envoyer des messages
-        # thread_send = Thread(target=self.send_msg)
-        # thread.start()
-        # thread_send.start()
-
         thread_data = Thread(target=self.data_collection, args=(ip,))
         thread_data.start()
 
@@ -147,4 +141,5 @@ class Client(metaclass=ClientMeta):
 
 
 if __name__ == '__main__':
-    client_ui = Client(sys.argv[1])
+    client_ui = Client()
+    client_ui.setup(sys.argv[1])

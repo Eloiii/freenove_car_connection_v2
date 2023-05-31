@@ -7,7 +7,7 @@ app.secret_key = 'SECRET_KEY'
 
 
 @app.route('/', methods=('GET', 'POST'))
-def hello_world():  # put application's code here
+def hello_world():
     if request.method == 'POST':
         ip = request.form['ip']
         port = request.form['port']
@@ -68,6 +68,9 @@ async def set_servo():
     state = await send_msg_and_receive_state(f'servo {value}')
 
     return jsonify(state.__dict__)
+
+
+# TODO endpoint streaming camera
 
 
 if __name__ == '__main__':
