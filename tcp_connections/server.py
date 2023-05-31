@@ -13,12 +13,12 @@ from threading import *
 #from picamera2.encoders import Quality
 #from picamera2.outputs import FileOutput
 
-from car_utilities.Buzzer import *
-from car_utilities.Led import *
-from car_utilities.Light import *
-from car_utilities.Ultrasonic import *
+from tcp_connections.car_utilities.Buzzer import *
+from tcp_connections.car_utilities.Led import *
+from tcp_connections.car_utilities.Light import *
+from tcp_connections.car_utilities.Ultrasonic import *
 from command import *
-from car_utilities.DataCollection import *
+from tcp_connections.car_utilities.DataCollection import *
 
 def get_mac_address():
     mac = uuid.getnode()
