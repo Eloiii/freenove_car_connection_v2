@@ -1,29 +1,30 @@
 import fcntl
 import io
+import pickle
 import socket
 import struct
-import sys
-import pickle
-import psutil
 import uuid
 from threading import *
 
+import psutil
 from picamera2 import Picamera2
 from picamera2.encoders import MJPEGEncoder
 from picamera2.encoders import Quality
 from picamera2.outputs import FileOutput
 
+from command import *
 from tcp_connections.car_utilities.Buzzer import *
+from tcp_connections.car_utilities.DataCollection import *
 from tcp_connections.car_utilities.Led import *
 from tcp_connections.car_utilities.Light import *
 from tcp_connections.car_utilities.Ultrasonic import *
-from command import *
-from tcp_connections.car_utilities.DataCollection import *
+
 
 def get_mac_address():
     mac = uuid.getnode()
-    mac_address = ':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
+    mac_address = ':'.join(("%012X" % mac)[i:i + 2] for i in range(0, 12, 2))
     return mac_address
+
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -68,7 +69,7 @@ class Server:
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print(f"Video server up, listening on {video_port}")
-        
+
         data_thread = Thread(target=self.data_collection)
         data_thread.start()
         thread = Thread(target=self.waiting_for_connection)
@@ -139,21 +140,22 @@ class Server:
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if(data== Command.CMD_DATA.value):
+                    if (data == Command.CMD_DATA.value):
                         self.data.setData(MAC=get_mac_address(),
                                           IP=None,
-                                          battery_voltage=self.adc.recvADC(2)*3,
-                                          battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
-                                          #cap = cv2.VideoCapture(0)
-                                          isRecording=False,#cap.isOpened(),
-                                          width = None,#cap.get(cv2.CAP_PROP_FRAME_WIDTH),
-                                          height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
-                                          FPS = None,#cap.get(cv2.CAP_PROP_FPS),
+                                          battery_voltage=self.adc.recvADC(2) * 3,
+                                          battery_percent=float((self.adc.recvADC(2) * 3) - 7) / 1.40 * 100,
+                                          # cap = cv2.VideoCapture(0)
+                                          isRecording=False,  # cap.isOpened(),
+                                          width=None,  # cap.get(cv2.CAP_PROP_FRAME_WIDTH),
+                                          height=None,  # cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
+                                          FPS=None,  # cap.get(cv2.CAP_PROP_FPS),
                                           CPU=psutil.cpu_percent(),
-                                          nb_process=None,#len(psutil.process_iter()), MARCHE PAS <-----------------------------
+                                          nb_process=None,
+                                          # len(psutil.process_iter()), MARCHE PAS <-----------------------------
                                           motor_model=self.motor_manager.getMotorModel(),
                                           leds=self.led_manager.ledsState(),
-                                          ultrasonic=None)            
+                                          ultrasonic=None)
                         client.send(pickle.dumps(self.data))
                     else:
                         print("Invalid request :", str(data))
@@ -197,13 +199,13 @@ class Server:
             # ??
             pass
         elif cmd == Command.CMD_DATACOLLECTION.value:
-            if(split_msg[1] == 1):
+            if (split_msg[1] == 1):
                 print("Start to save in the DB : NOT YET IMPLEMENTED")
                 pass
-            elif(split_msg[1] == 0):
+            elif (split_msg[1] == 0):
                 print("Stop to save in the DB : NOT YET IMPLEMENTED")
                 pass
-            #TO DO START AND CLOSE THE DATA COLLECTION IN THE DB TO DO
+            # TO DO START AND CLOSE THE DATA COLLECTION IN THE DB TO DO
         else:
             print(f'Error, unknown command {cmd}')
 

@@ -1,4 +1,4 @@
-from flask import Flask, request, session, render_template, url_for, redirect
+from flask import Flask, request, session, render_template, url_for, redirect, jsonify
 
 from tcp_connections.client import *
 
@@ -23,6 +23,9 @@ def hello_world():  # put application's code here
         session['ip'] = ip
         session['port'] = port
 
+        client = Client()
+        client.setup(session.get('ip'), int(session.get('port')))
+
         return redirect(url_for('choices'))
 
     return render_template('index.html')
@@ -43,11 +46,15 @@ def open_tcp_connection_and_send(command):
 
 
 @app.route('/toggleLed')
-def toggle_led():
-    value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'led {value}')
+async def toggle_led():
+    client = Client()
 
-    return err if err is not None else f'LED set to {value}'
+    value = request.args.get('value')
+    client.send_msg(f'led {value}')
+
+    data = await client.get_last_state()
+
+    return jsonify(data.__dict__)
 
 
 @app.route('/toggleBuzzer')

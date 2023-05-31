@@ -4,10 +4,11 @@ import struct
 import sys
 import time
 from threading import *
-from json import JSONEncoder
+
 import cv2
 import numpy as np
 
+import tcp_connections.car_utilities as cu
 from tcp_connections.command import *
 
 
@@ -19,7 +20,6 @@ def start_tcp_client(ip, port):
 
 
 class ClientMeta(type):
-
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
@@ -59,7 +59,6 @@ class Client(metaclass=ClientMeta):
         thread_data = Thread(target=self.data_collection, args=(ip,))
         thread_data.start()
 
-
     def connect_to_video_server(self):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
         thread_video = Thread(target=self.request_video)
@@ -92,16 +91,17 @@ class Client(metaclass=ClientMeta):
             self.client_data_socket = start_tcp_client(ip, 5005)
             try:
                 while True:
-                        self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
-                        serialized_data = self.client_data_socket.recv(1024)
-                        if not serialized_data:
-                            print("Connexion with server lost...")
-                            break
-                        data = pickle.loads(serialized_data)
-                        self.last_state = data
-                        # print(f'{self} data collection {self.last_state}')
-                        data.getData(samplin_rate=timer) #/!\ A CHNAGER PLUS TARD
-                        time.sleep(timer)
+                    self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                    serialized_data = self.client_data_socket.recv(1024)
+                    if not serialized_data:
+                        print("Connexion with server lost...")
+                        break
+                    sys.modules['car_utilities'] = cu
+                    data = pickle.loads(serialized_data)
+                    self.last_state = data
+                    # print(f'{self} data collection {self.last_state}')
+                    data.getData(samplin_rate=timer)  # /!\ A CHNAGER PLUS TARD
+                    time.sleep(timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
                 print("Trying to reconnect in 5 seconds...")
