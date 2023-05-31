@@ -65,7 +65,20 @@ def setData(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_volta
         data.buzzer_inUse = buzzer
 
 def printData(data:Data):
-    print(f'Car MAC address :{data.Car_MAC}\nCar IP Address :{data.Car_ip_address}\nSampling Rate :{data.samplin_rate}s\nTimestamp :{data.timestamp}\nBattery :{data.battery_voltage}V {data.battery_percent}%\nCPU :{data.CPU_use_percent}% | Number of process{data.nb_process}\nCamera : Is recording :{data.camera_is_recording} | Resolution :{data.camera_resolution_height}x{data.camera_resolution_width}  {data.camera_framerate}FPS\nWheels:\nFR:{data.motor_model[0]}|FL:{data.motor_model[1]}|BR:{data.motor_model[2]}|BL:{data.motor_model[3]}\nLedsBrightness:{data.leds_state}\Ultrasonic:{data.ultrasonic_inUse}\nBuzzer: {data.buzzer_inUse}')
+    print(f'Car MAC address: {data.Car_MAC}\n'
+      f'Car IP Address: {str(data.Car_ip_address)}\n'
+      f'Sampling Rate: {data.samplin_rate}s\n'
+      f'Timestamp: {data.timestamp}\n'
+      f'Battery: {data.battery_voltage}V {data.battery_percent}%\n'
+      f'CPU: {data.CPU_use_percent}% | Number of process: {data.nb_process}\n'
+      f'Camera: Is recording: {data.camera_is_recording} | '
+      f'Resolution: {data.camera_resolution_height}x{data.camera_resolution_width} {data.camera_framerate}FPS\n'
+      f'Wheels:\nFR: {data.motor_model[0]} | FL: {data.motor_model[1]} | BR: {data.motor_model[2]} | BL: {data.motor_model[3]}\n'
+      f'LedsBrightness: {data.leds_state}\n'
+      f'Ultrasonic: {data.ultrasonic_inUse}\n'
+      f'Buzzer: {data.buzzer_inUse}')
+
+    #print(f'Car MAC address :{data.Car_MAC}\nCar IP Address :{str(data.Car_ip_address)}\nSampling Rate :{data.samplin_rate}s\nTimestamp :{data.timestamp}\nBattery :{data.battery_voltage}V {data.battery_percent}%\nCPU :{data.CPU_use_percent}% | Number of process{data.nb_process}\nCamera : Is recording :{data.camera_is_recording} | Resolution :{data.camera_resolution_height}x{data.camera_resolution_width}  {data.camera_framerate}FPS\nWheels:\nFR:{data.motor_model[0]}|FL:{data.motor_model[1]}|BR:{data.motor_model[2]}|BL:{data.motor_model[3]}\nLedsBrightness:{data.leds_state}\Ultrasonic:{data.ultrasonic_inUse}\nBuzzer: {data.buzzer_inUse}')
 
 def new_ID():
     pass
