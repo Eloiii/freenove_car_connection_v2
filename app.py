@@ -4,14 +4,6 @@ from tcp_connections.client import *
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
-"""
-TODO
-
-prevent choices when no IP given
-another port field for the camera ?
-default port ?
-
-"""
 
 
 @app.route('/', methods=('GET', 'POST'))
@@ -36,49 +28,46 @@ def choices():
     return render_template('choices.html')
 
 
-def open_tcp_connection_and_send(command):
-    try:
-        client = Client(session.get('ip'), int(session.get('port')))
-        client.send_msg(command)
-        client.close_connection()
-    except Exception as err:
-        return f"{err}"
+async def send_msg_and_receive_state(command):
+    client = Client()
+
+    client.send_msg(command)
+
+    data = await client.get_last_state()
+
+    return data
 
 
 @app.route('/toggleLed')
 async def toggle_led():
-    client = Client()
-
     value = request.args.get('value')
-    client.send_msg(f'led {value}')
+    state = await send_msg_and_receive_state(f'led {value}')
 
-    data = await client.get_last_state()
-
-    return jsonify(data.__dict__)
+    return jsonify(state.__dict__)
 
 
 @app.route('/toggleBuzzer')
-def toggle_buzzer():
+async def toggle_buzzer():
     value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'buzzer {value}')
+    state = await send_msg_and_receive_state(f'buzzer {value}')
 
-    return err if err is not None else f'Buzzer set to {value}'
+    return jsonify(state.__dict__)
 
 
 @app.route('/setMotors')
-def set_motors():
+async def set_motors():
     value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'motor {value}')
+    state = await send_msg_and_receive_state(f'motor {value}')
 
-    return err if err is not None else f'Motors set to {value}'
+    return jsonify(state.__dict__)
 
 
 @app.route('/setServo')
-def set_servo():
+async def set_servo():
     value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'servo {value}')
+    state = await send_msg_and_receive_state(f'servo {value}')
 
-    return err if err is not None else f'Servo set to {value}'
+    return jsonify(state.__dict__)
 
 
 if __name__ == '__main__':
