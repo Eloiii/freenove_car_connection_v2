@@ -1,0 +1,440 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#"
+     xml:base="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#hasPart -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#hasPart">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#4WD_Smart_Car"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#isPartOf -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#isPartOf">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#4WD_Smart_Car"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#record -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#record">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#4WD_Smart_Car"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#records"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#use -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#use">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#CPU"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#buzzer"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#camera"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led1"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led2"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led3"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led4"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led5"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led6"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led7"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led8"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#ultrasonic"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFL"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFR"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRL"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRR"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#battery"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#IP_Address -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#IP_Address">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#4WD_Smart_Car"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#MAC_Address -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#MAC_Address">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#4WD_Smart_Car"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#blue_intensity -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#blue_intensity">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led1"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led2"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led3"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led4"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led5"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led6"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led7"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led8"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#buzzing -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#buzzing">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#buzzer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#charge -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#charge">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#battery"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#file_path -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#file_path">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#records"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#framerate -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#framerate">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#camera"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#green_intensity -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#green_intensity">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led1"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led2"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led3"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led4"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led5"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led6"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led7"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led8"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#number_of_process -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#number_of_process">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#CPU"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#recording -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#recording">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#camera"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#red_intensity -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#red_intensity">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led1"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led2"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led3"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led4"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led5"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led6"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led7"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led8"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#resolution_height -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#resolution_height">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#camera"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#resolution_width -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#resolution_width">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#camera"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#speed -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#speed">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFL"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFR"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRL"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRR"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#timestamp -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#timestamp">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#records"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTimeStamp"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#ultrasonicOn -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#ultrasonicOn">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#ultrasonic"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#use_percent -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#use_percent">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#CPU"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#voltage -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#voltage">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#battery"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#CPU -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#CPU">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#battery -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#battery">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#buzzer -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#buzzer">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#camera -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#camera">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led1 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led1">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led2 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led2">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led3 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led3">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led4 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led4">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led5 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led5">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led6 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led6">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led7 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led7">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led8 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#led8">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#records -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#records"/>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#ultrasonic -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#ultrasonic">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFL -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFL">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFR -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelFR">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRL -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRL">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRR -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#wheelRR">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#equipment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#4WD_Smart_Car -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/untitled-ontology-10#4WD_Smart_Car"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+
