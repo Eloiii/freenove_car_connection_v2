@@ -50,6 +50,28 @@ def start_tcp_server(port):
     return server
 
 
+def record_and_send_video(connection):
+    camera = Picamera2()
+    camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
+    output = StreamingOutput()
+    encoder = MJPEGEncoder(10000000)
+    camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
+    while True:
+        with output.condition:
+            output.condition.wait()
+            frame = output.frame
+        try:
+            frame_length = len(output.frame)
+            frame_length_binary = struct.pack('<I', frame_length)
+            connection.write(frame_length_binary)
+            connection.write(frame)
+        except:
+            camera.stop_recording()
+            camera.close()
+            print("End transmit ... ")
+            break
+
+
 class Server:
 
     def __init__(self, port=Port.PORT_COMMAND, video_port=Port.PORT_VIDEO, data_port=Port.PORT_DATA):
@@ -101,30 +123,13 @@ class Server:
         print(f'Client {client_addr} disconnected')
 
     def waiting_for_camera_connection(self):
-
-        connection, client_address = self.video_server.accept()
-        connection = connection.makefile('wb')
-
-        camera = Picamera2()
-        camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
-        output = StreamingOutput()
-        encoder = MJPEGEncoder(10000000)
-        camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
         while True:
-            with output.condition:
-                output.condition.wait()
-                frame = output.frame
-            try:
-                frame_length = len(output.frame)
-                frame_length_binary = struct.pack('<I', frame_length)
-                connection.write(frame_length_binary)
-                connection.write(frame)
-            except:
-                camera.stop_recording()
-                camera.close()
-                print("End transmit ... ")
-                connection.close()
-                break
+            connection, client_address = self.video_server.accept()
+            connection = connection.makefile('wb')
+
+            thread = Thread(target=record_and_send_video, args=(connection,))
+
+            thread.start()
 
     def data_collection(self):
         """
