@@ -84,5 +84,21 @@ def get_video():
     return Response(video(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
+@app.route('/start_recording')
+def start_recording():
+    client = Client()
+    client.connect_to_video_server()
+
+    return 'Recording...'
+
+
+@app.route('/stop_recording')
+def stop_recording():
+    client = Client()
+    client.close_video_connection()
+
+    return 'Recording stopped'
+
+
 if __name__ == '__main__':
     app.run()

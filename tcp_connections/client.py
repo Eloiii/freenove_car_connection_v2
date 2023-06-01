@@ -1,3 +1,5 @@
+import datetime
+import os
 import pickle
 import socket
 import struct
@@ -45,7 +47,7 @@ class Client(metaclass=ClientMeta):
             cls.instance = super(Client, cls).__new__(cls)
         return cls.instance
 
-    def setup(self, ip, port=Port.PORT_COMMAND, video_port=Port.PORT_VIDEO):
+    def setup(self, ip, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value):
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
@@ -58,20 +60,23 @@ class Client(metaclass=ClientMeta):
 
     def connect_to_video_server(self):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
-        thread_video = Thread(target=self.request_video)
+        thread_video = Thread(target=self.start_recording)
         thread_video.start()
 
-    def request_video(self):
+    def start_recording(self):
+        n_img = 0
         stream_bytes = b' '
+        directory = str(datetime.datetime.now())
+        os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
                 try:
                     stream_bytes = connection.read(4)
                     frame_length = struct.unpack('<L', stream_bytes[:4])
-                    # jpg = connection.read(frame_length[0])
                     self.imgbytes = connection.read(frame_length[0])
-                    # image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-                    # self.imgbytes = cv2.imencode('img.jpg', image)
+                    image = cv2.imdecode(np.frombuffer(self.imgbytes, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    cv2.imwrite(f'{directory}/{n_img}.jpg', image)
+                    n_img += 1
                     # showing camera live
                     # cv2.imshow('image', image)
                     # if cv2.waitKey(10) == 13:
@@ -87,7 +92,7 @@ class Client(metaclass=ClientMeta):
         When connected, request for the current state of the car every "timer" value in seconds
         """
         while True:
-            self.client_data_socket = start_tcp_client(ip, Port.PORT_DATA)
+            self.client_data_socket = start_tcp_client(ip, Port.PORT_DATA.value)
             try:
                 while True:
                     self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
@@ -134,6 +139,10 @@ class Client(metaclass=ClientMeta):
         n = self.client.send(data.encode('utf-8'))
         if n != len(data):
             print('sending error')
+
+    def close_video_connection(self):
+        self.video_client.shutdown(socket.SHUT_RDWR)
+        self.video_client.close()
 
     def close_connection(self):
         self.client.shutdown(socket.SHUT_RDWR)
