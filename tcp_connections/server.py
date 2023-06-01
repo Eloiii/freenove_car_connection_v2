@@ -13,11 +13,11 @@ from picamera2.encoders import Quality
 from picamera2.outputs import FileOutput
 
 from command import *
-from tcp_connections.car_utilities.Buzzer import *
-from tcp_connections.car_utilities.DataCollection import *
-from tcp_connections.car_utilities.Led import *
-from tcp_connections.car_utilities.Light import *
-from tcp_connections.car_utilities.Ultrasonic import *
+from car_utilities.Buzzer import *
+from car_utilities.DataCollection import *
+from car_utilities.Led import *
+from car_utilities.Light import *
+from car_utilities.Ultrasonic import *
 
 
 def get_mac_address():
