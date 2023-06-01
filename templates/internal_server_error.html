@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>
+        Internal Server Error (500)
+    </h1>
+{% endblock %}
+
+{% block content %}
+    <pre>
+        {{ error }}
+    </pre>
+
+    <p>
+        <strong>
+            Did you fill in the IP address of the car at least once as a request argument?
+
+        </strong>
+    </p>
+
+{% endblock %}

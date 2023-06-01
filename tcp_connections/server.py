@@ -52,7 +52,7 @@ def start_tcp_server(port):
 
 class Server:
 
-    def __init__(self, port=8787, video_port=8888, data_port=5005):
+    def __init__(self, port=Port.PORT_COMMAND, video_port=Port.PORT_VIDEO, data_port=Port.PORT_DATA):
         self.server = start_tcp_server(port)
         print(f"Command server up, listening on {port}")
 
@@ -123,6 +123,7 @@ class Server:
                 camera.stop_recording()
                 camera.close()
                 print("End transmit ... ")
+                connection.close()
                 break
 
     def data_collection(self):

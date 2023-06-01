@@ -1,4 +1,6 @@
-from flask import Flask, request, session, render_template, url_for, redirect, jsonify
+import os
+
+from flask import Flask, request, session, render_template, url_for, redirect, jsonify, Response
 
 from tcp_connections.client import *
 
@@ -6,42 +8,41 @@ app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
 
 
-@app.route('/', methods=('GET', 'POST'))
-def hello_world():
-    if request.method == 'POST':
-        ip = request.form['ip']
-        port = request.form['port']
-
-        session['ip'] = ip
-        session['port'] = port
-
-        client = Client()
-        client.setup(session.get('ip'), int(session.get('port')))
-
-        return redirect(url_for('choices'))
-
-    return render_template('index.html')
-
-
-@app.route('/choices')
-def choices():
+@app.route('/')
+def index():
     return render_template('choices.html')
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template('internal_server_error.html', error=error), 500
 
 
 async def send_msg_and_receive_state(command):
     client = Client()
-
     client.send_msg(command)
 
     data = await client.get_last_state()
-
     return data
 
 
-@app.route('/toggleLed')
-async def toggle_led():
+@app.before_request
+def setup_client_connection():
+    ip = request.args.get('ip')
+    port = request.args.get('port')
+    client = Client()
+    if not client.initialised and ip is not None:
+        client.setup(ip, int(port if port is not None else '8787'))
+
+
+@app.route('/setLED')
+async def set_led():
     value = request.args.get('value')
-    state = await send_msg_and_receive_state(f'led {value}')
+
+    try:
+        state = await send_msg_and_receive_state(f'led {value}')
+    except Exception as e:
+        return e.__dict__
 
     return jsonify(state.__dict__)
 
@@ -70,7 +71,17 @@ async def set_servo():
     return jsonify(state.__dict__)
 
 
-# TODO endpoint streaming camera
+def video():
+    client = Client()
+    client.connect_to_video_server()
+    while True:
+        if client.imgbytes is not None:
+            yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + client.imgbytes + b'\r\n'
+
+
+@app.route('/get_video')
+def get_video():
+    return Response(video(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':

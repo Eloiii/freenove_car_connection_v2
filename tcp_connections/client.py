@@ -37,13 +37,15 @@ class Client(metaclass=ClientMeta):
         self.client = None
         self.video_port = None
         self.server_ip = None
+        self.imgbytes = None
+        self.initialised = False
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Client, cls).__new__(cls)
         return cls.instance
 
-    def setup(self, ip, port=8787, video_port=8888):
+    def setup(self, ip, port=Port.PORT_COMMAND, video_port=Port.PORT_VIDEO):
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
@@ -52,6 +54,7 @@ class Client(metaclass=ClientMeta):
 
         thread_data = Thread(target=self.data_collection, args=(ip,))
         thread_data.start()
+        self.initialised = True
 
     def connect_to_video_server(self):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
@@ -65,8 +68,10 @@ class Client(metaclass=ClientMeta):
                 try:
                     stream_bytes = connection.read(4)
                     frame_length = struct.unpack('<L', stream_bytes[:4])
-                    jpg = connection.read(frame_length[0])
-                    image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    # jpg = connection.read(frame_length[0])
+                    self.imgbytes = connection.read(frame_length[0])
+                    # image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    # self.imgbytes = cv2.imencode('img.jpg', image)
                     # showing camera live
                     # cv2.imshow('image', image)
                     # if cv2.waitKey(10) == 13:
@@ -82,7 +87,7 @@ class Client(metaclass=ClientMeta):
         When connected, request for the current state of the car every "timer" value in seconds
         """
         while True:
-            self.client_data_socket = start_tcp_client(ip, 5005)
+            self.client_data_socket = start_tcp_client(ip, Port.PORT_DATA)
             try:
                 while True:
                     self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
