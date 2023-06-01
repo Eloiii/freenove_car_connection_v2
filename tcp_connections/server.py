@@ -74,7 +74,7 @@ def record_and_send_video(connection):
 
 class Server:
 
-    def __init__(self, port=Port.PORT_COMMAND, video_port=Port.PORT_VIDEO, data_port=Port.PORT_DATA):
+    def __init__(self, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value, data_port=Port.PORT_DATA.value):
         self.server = start_tcp_server(port)
         print(f"Command server up, listening on {port}")
 
