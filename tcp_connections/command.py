@@ -10,3 +10,9 @@ class Command(Enum):
     CMD_LIGHT = 'light'
     CMD_DATA = 'data'
     CMD_DATACOLLECTION = 'datacollection'
+
+
+class Port(Enum):
+    PORT_COMMAND = 8787
+    PORT_VIDEO = 8888
+    PORT_DATA = 5005
