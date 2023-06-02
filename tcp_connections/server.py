@@ -12,12 +12,12 @@ from picamera2.encoders import MJPEGEncoder
 from picamera2.encoders import Quality
 from picamera2.outputs import FileOutput
 
-from command import *
 from car_utilities.Buzzer import *
 from car_utilities.DataCollection import *
 from car_utilities.Led import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
+from command import *
 
 
 def get_mac_address():
@@ -70,7 +70,7 @@ def record_and_send_video(connection, framerate):
             camera.close()
             print("End transmit ... ")
             break
-        time.sleep(1/framerate)
+        time.sleep(1 / framerate)
 
 
 class Server:
@@ -131,7 +131,7 @@ class Server:
 
             connection = connection.makefile('wb')
 
-            thread = Thread(target=record_and_send_video, args=(connection,framerate,))
+            thread = Thread(target=record_and_send_video, args=(connection, framerate,))
             thread.start()
 
     def data_collection(self):

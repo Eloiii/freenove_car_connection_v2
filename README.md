@@ -53,5 +53,6 @@ Once the IP is filled in once, it is not mandatory when calling other endpoints 
   - parameter `value` : `ACTIVATIONVALUE`
 - `/get_video` : live-streaming of the car camera
 - `/start_recording` : start a recording, saving images to local device
+  - parameter `framerate` : number of images per second recorded
 - `/stop_recording` : stop the current recording
 
