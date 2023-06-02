@@ -1,6 +1,4 @@
-import os
-
-from flask import Flask, request, session, render_template, url_for, redirect, jsonify, Response
+from flask import Flask, request, render_template, jsonify, Response
 
 from tcp_connections.client import *
 
@@ -87,7 +85,8 @@ def get_video():
 @app.route('/start_recording')
 def start_recording():
     client = Client()
-    client.connect_to_video_server()
+    framerate = request.args.get('framerate')
+    client.connect_to_video_server(framerate)
 
     return 'Recording...'
 

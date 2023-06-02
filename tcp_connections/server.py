@@ -70,6 +70,7 @@ def record_and_send_video(connection):
             camera.close()
             print("End transmit ... ")
             break
+        time.sleep(1)
 
 
 class Server:
@@ -126,6 +127,9 @@ class Server:
         while True:
             connection, client_address = self.video_server.accept()
             connection = connection.makefile('wb')
+
+            framerate = connection.read(4)
+            print(framerate)
 
             thread = Thread(target=record_and_send_video, args=(connection,))
 

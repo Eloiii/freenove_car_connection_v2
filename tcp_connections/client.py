@@ -58,8 +58,9 @@ class Client(metaclass=ClientMeta):
         thread_data.start()
         self.initialised = True
 
-    def connect_to_video_server(self):
+    def connect_to_video_server(self, framerate):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
+        self.video_client.send(framerate)
         thread_video = Thread(target=self.start_recording)
         thread_video.start()
 
