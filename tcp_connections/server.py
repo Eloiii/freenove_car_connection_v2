@@ -50,7 +50,7 @@ def start_tcp_server(port):
     return server
 
 
-def record_and_send_video(connection):
+def record_and_send_video(connection, framerate):
     camera = Picamera2()
     camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
     output = StreamingOutput()
@@ -70,7 +70,7 @@ def record_and_send_video(connection):
             camera.close()
             print("End transmit ... ")
             break
-        time.sleep(1)
+        time.sleep(1/framerate)
 
 
 class Server:
@@ -126,13 +126,12 @@ class Server:
     def waiting_for_camera_connection(self):
         while True:
             connection, client_address = self.video_server.accept()
+
+            framerate = connection.recv(1024).decode('utf-8')
+
             connection = connection.makefile('wb')
 
-            framerate = connection.read(4)
-            print(framerate)
-
-            thread = Thread(target=record_and_send_video, args=(connection,))
-
+            thread = Thread(target=record_and_send_video, args=(connection,framerate,))
             thread.start()
 
     def data_collection(self):
