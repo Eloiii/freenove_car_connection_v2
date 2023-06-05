@@ -99,5 +99,10 @@ def stop_recording():
     return 'Recording stopped'
 
 
+@app.route('/controlUI')
+def control_ui():
+    return render_template('control.html')
+
+
 if __name__ == '__main__':
     app.run()

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Car control{% endblock %}</h1>
+    <link
+            rel="stylesheet"
+            type="text/css"
+            href="{{ url_for('static',filename='control.css') }}"
+    >
+
+{% endblock %}
+
+{% block content %}
+    <main>
+        <section>
+            <div class="motors">
+                Motors
+                <div class="top">
+                    <div class="forward direction">
+                        ^
+                    </div>
+                </div>
+                <div class="middle">
+                    <div class="left direction">
+                        <
+                    </div>
+                    <div class="right direction">
+                        >
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="backward direction">
+                        BAS
+                    </div>
+                </div>
+            </div>
+            <div class="LEDs">
+
+            </div>
+            <div class="servos">
+                Servos
+                <div class="top">
+                    <div class="forward servo">
+                        HAUT
+                    </div>
+                </div>
+                <div class="middle">
+                    <div class="left servo">
+                        GAUCHE
+                    </div>
+                    <div class="right servo">
+                        DROITE
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="backward servo">
+                        BAS
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div>
+            <div class="buzzer">
+                BUZZER
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static',filename='controls.js') }}"></script>
+{% endblock %}
+
