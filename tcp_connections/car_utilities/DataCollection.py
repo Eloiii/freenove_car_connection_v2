@@ -4,8 +4,8 @@ from datetime import datetime
 class Data:
 
     def __init__(self):
-        self.Car_MAC = None
-        self.Car_ip_address = None
+        self.Car_MAC_address = None
+        self.Car_IP_address = None
         self.samplin_rate = None
         self.timestamp = None
         self.battery_percent = None
@@ -35,9 +35,9 @@ def setData(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_volta
     '''
     data.timestamp = datetime.timestamp(datetime.now())
     if MAC!=None:
-        data.Car_MAC = MAC
+        data.Car_MAC_address = MAC
     if IP!=None:
-        data.Car_ip_address = IP
+        data.Car_IP_address = IP
     if sampl_rate!=None:
         data.samplin_rate = sampl_rate
     if battery_voltage!=None:
@@ -70,7 +70,7 @@ def printData(data:Data):
       f'Car MAC address: {data.Car_MAC}\n'
       f'Car IP Address: {str(data.Car_ip_address)}\n'
       f'Sampling Rate: {data.samplin_rate}s\n'
-      f'Timestamp: {data.timestamp}\n'
+      f'Timestamp: {datetime.fromtimestamp(data.timestamp)}\n'
       f'Battery: {data.battery_voltage}V {data.battery_percent}%\n'
       f'CPU: {data.CPU_use_percent}% | Number of process: {data.nb_process}\n'
       f'Camera: Is recording: {data.camera_is_recording} | '
