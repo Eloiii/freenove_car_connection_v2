@@ -42,17 +42,24 @@ To set up the TCP connection between the client and the server (the car) the car
 
 Once the IP is filled in once, it is not mandatory when calling other endpoints after that.
 
-- `/` : display HTML links to all endpoints
+- `/`
 - `/setLED` : 
   - parameter `value` : `LEDINDEX_REDVALUE_GREENVALUE_BLUEVALUE`
+  - e.g. `value=0x01_255_255_255` will turn the LED 1 white
 - `/setMotors` :
   - parameter `value` : `LEFTUPPERWHEEL_LEFTLOWERWHEEL_RIGHUPPERWHEEL_RIGHTLOWERWHEEL_`
+  - e.g. `value=2000_2000_2000_2000` will make the car go forward
 - `/setServo` :
   - parameter `value` : `SERVOID_DEGREES`
+  - e.g. `value=0_90` will turn the servo 0 to 90 degrees
 - `/toggleBuzzer` :
   - parameter `value` : `ACTIVATIONVALUE`
-- `/get_video` : live-streaming of the car camera
+  - e.g. `value=0` will turn on the buzzer
+- `/get_video` : live-streaming of the car camera (⚠️ takes a lot of resources (RAM and CPU%))
+  - parameter `framerate` : number of images per second recorded
+  - e.g. `framerate=20` will capture a real-time video in 20 frames per second
 - `/start_recording` : start a recording, saving images to local device
   - parameter `framerate` : number of images per second recorded
+  - e.g. `framerate=20` will capture a video in 20 frames per second
 - `/stop_recording` : stop the current recording
 
