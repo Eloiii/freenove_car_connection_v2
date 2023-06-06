@@ -1,4 +1,4 @@
-# freenove-car-connection-v2
+# [freenove-car-connection-v2](https://github.com/Eloiii/freenove_car_connection_v2)
 
 An environment to control and manage a [Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi](https://github.com/Freenove/Freenove_4WD_Smart_Car_Kit_for_Raspberry_Pi).
 
