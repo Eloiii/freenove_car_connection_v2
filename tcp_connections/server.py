@@ -131,7 +131,7 @@ class Server:
 
             connection = connection.makefile('wb')
 
-            thread = Thread(target=record_and_send_video, args=(connection, framerate,))
+            thread = Thread(target=record_and_send_video, args=(connection, int(framerate),))
             thread.start()
 
     def data_collection(self):
