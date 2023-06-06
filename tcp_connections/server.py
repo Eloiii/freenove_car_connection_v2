@@ -213,10 +213,10 @@ class Server:
                 # ??
                 pass
             elif cmd == Command.CMD_DATACOLLECTION.value:
-                if (split_msg[1] == 1):
+                if split_msg[1] == 1:
                     print("Start to save in the DB : NOT YET IMPLEMENTED")
                     pass
-                elif (split_msg[1] == 0):
+                elif split_msg[1] == 0:
                     print("Stop to save in the DB : NOT YET IMPLEMENTED")
                     pass
                 # TO DO START AND CLOSE THE DATA COLLECTION IN THE DB TO DO

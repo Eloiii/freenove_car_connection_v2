@@ -118,21 +118,6 @@ class Client(metaclass=ClientMeta):
             finally:
                 self.client_data_socket.close()
 
-    def waiting_for_message(self):
-        while True:
-            data = self.client.recv(1024).decode('utf-8')
-            if data == '':
-                break
-            print(data)
-
-    # def send_msg(self):
-    #     while True:
-    #         txt = input('? ').encode('utf-8')
-    #         n = self.client.send(txt)
-    #         if n != len(txt):
-    #             print('erreur d\'envoie')
-    #             break
-
     def send_msg(self, data):
         """
         data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
