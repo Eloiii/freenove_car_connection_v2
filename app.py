@@ -37,10 +37,7 @@ def setup_client_connection():
 async def set_led():
     value = request.args.get('value')
 
-    try:
-        state = await send_msg_and_receive_state(f'led {value}')
-    except Exception as e:
-        return e.__dict__
+    state = await send_msg_and_receive_state(f'led {value}')
 
     return jsonify(state.__dict__)
 
@@ -69,9 +66,9 @@ async def set_servo():
     return jsonify(state.__dict__)
 
 
-def video():
+def video(framerate):
     client = Client()
-    client.connect_to_video_server()
+    client.connect_to_video_server(framerate)
     while True:
         if client.imgbytes is not None:
             yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + client.imgbytes + b'\r\n'
@@ -79,7 +76,8 @@ def video():
 
 @app.route('/get_video')
 def get_video():
-    return Response(video(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    framerate = request.args.get('framerate')
+    return Response(video(framerate), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/start_recording')

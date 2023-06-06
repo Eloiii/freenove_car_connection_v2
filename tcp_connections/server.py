@@ -118,7 +118,12 @@ class Server:
             if not data:
                 break
             else:
-                self.treat_msg(data)
+                try:
+                    self.treat_msg(data)
+                except:
+                    client.close()
+                    self.close_server()
+                    return
             print(f'received {data}')
         client.close()
         print(f'Client {client_addr} disconnected')
@@ -219,7 +224,7 @@ class Server:
                 print(f'Error, unknown command {cmd}')
         except:
             print('wrong message format received')
-            self.close_server()
+            return
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000
