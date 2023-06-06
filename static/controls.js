@@ -35,14 +35,14 @@ buzzer.addEventListener('mouseup', () => {
 })
 
 const servos_controls = document.querySelectorAll(".servo")
-const servos_values = [90, 90]
+let servos_values = [90, 90]
 
 let servoTimer
 
 for (let control of servos_controls) {
     control.addEventListener('mousedown', e => {
         const direction = e.target.classList[0]
-        if(direction === "home") {
+        if (direction === "home") {
             send(`/setServo?ip=${CAR_IP}&value=0_90`)
             setTimeout(() => send(`/setServo?ip=${CAR_IP}&value=1_90`), 50)
         }
@@ -66,12 +66,15 @@ for (let control of servos_controls) {
 
     })
     control.addEventListener('mouseup', () => {
-        if (servoTimer) clearInterval(servoTimer)
+        if (servoTimer) {
+            clearInterval(servoTimer)
+            servos_values = [90, 90]
+        }
     })
 }
 
 document.addEventListener('keydown', e => {
-    if(e.code === 'Enter') {
+    if (e.code === 'Enter') {
         const target = e.target
         const rawTxt = target.value
         const rbgValues = rawTxt.replaceAll(' ', '').replaceAll(',', '_') || '0_0_0'
