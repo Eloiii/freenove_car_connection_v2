@@ -187,36 +187,39 @@ class Server:
     def treat_msg(self, msg):
         split_msg = msg.split(' ')
         cmd = split_msg[0]
-
-        if cmd == Command.CMD_MOTOR.value:
-            # motor 2000_2000_2000_2000
-            self.activate_motor(split_msg[1])
-        elif cmd == Command.CMD_SERVO.value:
-            # servo 0_90
-            self.activate_servo(split_msg[1])
-        elif cmd == Command.CMD_LED.value:
-            # led 0x01_255_255_255
-            self.activate_led(split_msg[1])
-        elif cmd == Command.CMD_SONIC.value:
-            # sonic
-            self.send_ultrasonic()
-            self.sonic_count += 1
-        elif cmd == Command.CMD_BUZZER.value:
-            # buzzer 1
-            self.activate_buzzer(split_msg[1])
-        elif cmd == Command.CMD_LIGHT.value:
-            # ??
-            pass
-        elif cmd == Command.CMD_DATACOLLECTION.value:
-            if (split_msg[1] == 1):
-                print("Start to save in the DB : NOT YET IMPLEMENTED")
+        try:
+            if cmd == Command.CMD_MOTOR.value:
+                # motor 2000_2000_2000_2000
+                self.activate_motor(split_msg[1])
+            elif cmd == Command.CMD_SERVO.value:
+                # servo 0_90
+                self.activate_servo(split_msg[1])
+            elif cmd == Command.CMD_LED.value:
+                # led 0x01_255_255_255
+                self.activate_led(split_msg[1])
+            elif cmd == Command.CMD_SONIC.value:
+                # sonic
+                self.send_ultrasonic()
+                self.sonic_count += 1
+            elif cmd == Command.CMD_BUZZER.value:
+                # buzzer 1
+                self.activate_buzzer(split_msg[1])
+            elif cmd == Command.CMD_LIGHT.value:
+                # ??
                 pass
-            elif (split_msg[1] == 0):
-                print("Stop to save in the DB : NOT YET IMPLEMENTED")
-                pass
-            # TO DO START AND CLOSE THE DATA COLLECTION IN THE DB TO DO
-        else:
-            print(f'Error, unknown command {cmd}')
+            elif cmd == Command.CMD_DATACOLLECTION.value:
+                if (split_msg[1] == 1):
+                    print("Start to save in the DB : NOT YET IMPLEMENTED")
+                    pass
+                elif (split_msg[1] == 0):
+                    print("Stop to save in the DB : NOT YET IMPLEMENTED")
+                    pass
+                # TO DO START AND CLOSE THE DATA COLLECTION IN THE DB TO DO
+            else:
+                print(f'Error, unknown command {cmd}')
+        except:
+            print('wrong message format received')
+            self.close_server()
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000
