@@ -178,6 +178,7 @@
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#index">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#led"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
         <rdfs:comment>Index of the led on the led strip.</rdfs:comment>
@@ -227,6 +228,7 @@ False if it is not</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#position">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#motor"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
         <rdfs:comment>Position of the current motor : 
@@ -238,9 +240,9 @@ False if it is not</rdfs:comment>
     
 
 
-    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#red_instensity -->
+    <!-- http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#red_intensity -->
 
-    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#red_instensity">
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#red_intensity">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#measure"/>
@@ -276,6 +278,7 @@ False if it is not</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#samplin_rate">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_smart_car_specific_ontology#measure"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#unsignedInt"/>
         <rdfs:comment>The rate in seconds at wich we recover the data.</rdfs:comment>

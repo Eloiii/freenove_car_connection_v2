@@ -27,7 +27,6 @@ def getData(data:Data, samplin_rate:int=None):
     Used by the client to retrieve the data into the Database
     Furthermore update the sampling rate
     '''
-    data.samplin_rate=samplin_rate
 
 def setData(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_voltage:float=None,battery_percent:float=None,isRecording:bool=None,height=None,width=None,FPS=None,CPU:float=None,nb_process:int=None,motor_model=None,leds=None, ultrasonic:bool=None, buzzer:bool=None):
     '''
@@ -66,9 +65,9 @@ def setData(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_volta
         data.buzzer_inUse = buzzer
 
 def printData(data:Data):
-    print("____________________________________________________________________________________________________"
-      f'Car MAC address: {data.Car_MAC}\n'
-      f'Car IP Address: {str(data.Car_ip_address)}\n'
+    print("____________________________________________________________________________________________________\n"
+      f'Car MAC address: {data.Car_MAC_address}\n'
+      f'Car IP Address: {str(data.Car_IP_address)}\n'
       f'Sampling Rate: {data.samplin_rate}s\n'
       f'Timestamp: {datetime.fromtimestamp(data.timestamp)}\n'
       f'Battery: {data.battery_voltage}V {data.battery_percent}%\n'
@@ -79,4 +78,4 @@ def printData(data:Data):
       f'LedsBrightness: {data.leds_state}\n'
       f'Ultrasonic: {data.ultrasonic_inUse}\n'
       f'Buzzer: {data.buzzer_inUse}'
-      "____________________________________________________________________________________________________")
+      "\n____________________________________________________________________________________________________")
