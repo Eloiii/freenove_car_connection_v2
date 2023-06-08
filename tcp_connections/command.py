@@ -9,3 +9,8 @@ class Command(Enum):
     CMD_BUZZER = 'buzzer'
     CMD_LIGHT = 'light'
     CMD_DATA = 'data'
+
+class Port(Enum):
+    PORT_COMMAND = 8787
+    PORT_VIDEO = 8888
+    PORT_DATA = 5005

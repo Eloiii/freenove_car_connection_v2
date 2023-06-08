@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %}Car control{% endblock %}</h1>
+    <link
+            rel="stylesheet"
+            type="text/css"
+            href="{{ url_for('static',filename='control.css') }}"
+    >
+
+{% endblock %}
+
+{% block content %}
+    <main>
+        <section>
+            <div class="motors">
+                Motors
+                <div class="top">
+                    <div class="forward direction">
+                        ↑
+                    </div>
+                </div>
+                <div class="middle">
+                    <div class="left direction">
+                        ←
+                    </div>
+                    <div class="right direction">
+                        →
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="backward direction">
+                        ↓
+                    </div>
+                </div>
+            </div>
+            <div class="LEDs">
+
+            </div>
+            <div class="servos">
+                Servos
+                <div class="top">
+                    <div class="forward servo">
+                        ↑
+                    </div>
+                </div>
+                <div class="middle">
+                    <div class="left servo">
+                        ←
+                    </div>
+                    <div class="home servo">
+                        STRAIGHT
+                    </div>
+                    <div class="right servo">
+                        →
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="backward servo">
+                        ↓
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="buzzer">
+                    BUZZER
+                </div>
+            </div>
+            <div class="leds">
+                <span>
+                    <label for="0x01_color">
+                        LED 0x01 (1)
+                    </label>
+                    <input type="text" id="0x01_color" class="led">
+                </span>
+                <span>
+                    <label for="0x02_color">
+                    LED 0x02 (2)
+
+                    </label>
+                    <input type="text" id="0x02_color" class="led">
+                </span>
+                <span>
+                    <label for="0x04_color">
+                        LED 0x04 (3)
+                    </label>
+                    <input type="text" id="0x04_color" class="led">
+                </span>
+                <span>
+                    <label for="0x08_color">
+                        LED 0x08 (4)
+                    </label>
+                    <input type="text" id="0x08_color" class="led">
+                </span>
+                <span>
+                    <label for="0x10_color">
+                        LED 0x10 (5)
+                    </label>
+                    <input type="text" id="0x10_color" class="led">
+                </span>
+                <span>
+                    <label for="0x20_color">
+                        LED 0x20 (6)
+                    </label>
+                    <input type="text" id="0x20_color" class="led">
+                </span>
+                <span>
+                    <label for="0x40_color">
+                        LED 0x40 (7)
+                    </label>
+                    <input type="text" id="0x40_color" class="led">
+                </span>
+                <span>
+                    <label for="0x80_color">
+                        LED 0x80 (8)
+                    </label>
+                    <input type="text" id="0x80_color" class="led">
+                </span>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="{{ url_for('static',filename='controls.js') }}"></script>
+{% endblock %}
+

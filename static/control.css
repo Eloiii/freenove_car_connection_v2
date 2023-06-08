@@ -1,0 +1,32 @@
+.direction, .buzzer, .servo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 125px;
+    height: 125px;
+    background-color: grey;
+    margin: 1px 1px 1px 1px;
+}
+
+
+.direction:hover, .buzzer:hover, .servo:hover{
+    cursor: pointer;
+}
+
+.top, .middle, .bottom {
+    display: flex;
+    justify-content: center;
+}
+
+main section {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    text-align: center;
+    flex-flow: row wrap;
+}
+
+.leds {
+    display: flex;
+    flex-flow: column wrap;
+}

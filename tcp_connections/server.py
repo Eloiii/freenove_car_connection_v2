@@ -1,29 +1,30 @@
 import fcntl
 import io
+import pickle
 import socket
 import struct
-import sys
-import pickle
-import psutil
 import uuid
 from threading import *
 
-#from picamera2 import Picamera2
-#from picamera2.encoders import MJPEGEncoder
-#from picamera2.encoders import Quality
-#from picamera2.outputs import FileOutput
+import psutil
+from picamera2 import Picamera2
+from picamera2.encoders import MJPEGEncoder
+from picamera2.encoders import Quality
+from picamera2.outputs import FileOutput
 
-from tcp_connections.car_utilities.Buzzer import *
-from tcp_connections.car_utilities.Led import *
-from tcp_connections.car_utilities.Light import *
-from tcp_connections.car_utilities.Ultrasonic import *
+from car_utilities.Buzzer import *
+from car_utilities.DataCollection import *
+from car_utilities.Led import *
+from car_utilities.Light import *
+from car_utilities.Ultrasonic import *
 from command import *
-from tcp_connections.car_utilities.DataCollection import *
+
 
 def get_mac_address():
     mac = uuid.getnode()
-    mac_address = ':'.join(("%012X" % mac)[i:i+2] for i in range(0, 12, 2))
+    mac_address = ':'.join(("%012X" % mac)[i:i + 2] for i in range(0, 12, 2))
     return mac_address
+
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -49,9 +50,38 @@ def start_tcp_server(port):
     return server
 
 
+def record_and_send_video(connection, framerate):
+    camera = Picamera2()
+    camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
+    output = StreamingOutput()
+    encoder = MJPEGEncoder(10000000)
+    camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
+    while True:
+        with output.condition:
+            output.condition.wait()
+            frame = output.frame
+        try:
+            frame_length = len(output.frame)
+            frame_length_binary = struct.pack('<I', frame_length)
+            connection.write(frame_length_binary)
+            connection.write(frame)
+        except:
+            camera.stop_recording()
+            camera.close()
+            print("End transmit ... ")
+            break
+        time.sleep(1 / framerate)
+
+
 class Server:
 
-    def __init__(self, port=8787, video_port=8888, data_port=5005):
+    def __init__(self, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value, data_port=Port.PORT_DATA.value):
+        self.server = start_tcp_server(port)
+        print(f"Command server up, listening on {port}")
+
+        self.data_socket = start_tcp_server(data_port)
+        print(f"Data server up, listening on {data_port}")
+
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
@@ -69,7 +99,7 @@ class Server:
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print(f"Video server up, listening on {video_port}")
-        
+
         data_thread = Thread(target=self.data_collection)
         data_thread.start()
         thread = Thread(target=self.waiting_for_connection)
@@ -95,38 +125,26 @@ class Server:
             if not data:
                 break
             else:
-                self.treat_msg(data)
+                try:
+                    self.treat_msg(data)
+                except:
+                    client.close()
+                    self.close_server()
+                    return
             print(f'received {data}')
         client.close()
         print(f'Client {client_addr} disconnected')
 
     def waiting_for_camera_connection(self):
-
-        connection, client_address = self.video_server.accept()
-        connection = connection.makefile('wb')
-
-        camera = Picamera2()
-        camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
-        output = StreamingOutput()
-        encoder = MJPEGEncoder(10000000)
-        camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
-
-        print(f'Camera recording in {camera.resolution} and {camera.framerate} fps') # TODO test ---------------------------------------------------------
-
         while True:
-            with output.condition:
-                output.condition.wait()
-                frame = output.frame
-            try:
-                frame_length = len(output.frame)
-                frame_length_binary = struct.pack('<I', frame_length)
-                connection.write(frame_length_binary)
-                connection.write(frame)
-            except:
-                camera.stop_recording()
-                camera.close()
-                print("End transmit ... ")
-                break
+            connection, client_address = self.video_server.accept()
+
+            framerate = connection.recv(1024).decode('utf-8')
+
+            connection = connection.makefile('wb')
+
+            thread = Thread(target=record_and_send_video, args=(connection, int(framerate),))
+            thread.start()
 
     def data_collection(self):
         """
@@ -182,28 +200,31 @@ class Server:
     def treat_msg(self, msg):
         split_msg = msg.split(' ')
         cmd = split_msg[0]
-
-        if cmd == Command.CMD_MOTOR.value:
-            # motor 2000_2000_2000_2000
-            self.activate_motor(split_msg[1])
-        elif cmd == Command.CMD_SERVO.value:
-            # servo 0_90
-            self.activate_servo(split_msg[1])
-        elif cmd == Command.CMD_LED.value:
-            # led 0x01_255_255_255
-            self.activate_led(split_msg[1])
-        elif cmd == Command.CMD_SONIC.value:
-            # sonic
-            self.send_ultrasonic()
-            self.sonic_count += 1
-        elif cmd == Command.CMD_BUZZER.value:
-            # buzzer 1
-            self.activate_buzzer(split_msg[1])
-        elif cmd == Command.CMD_LIGHT.value:
-            # ??
-            pass
-        else:
-            print(f'Error, unknown command {cmd}')
+        try:
+            if cmd == Command.CMD_MOTOR.value:
+                # motor 2000_2000_2000_2000
+                self.activate_motor(split_msg[1])
+            elif cmd == Command.CMD_SERVO.value:
+                # servo 0_90
+                self.activate_servo(split_msg[1])
+            elif cmd == Command.CMD_LED.value:
+                # led 0x01_255_255_255
+                self.activate_led(split_msg[1])
+            elif cmd == Command.CMD_SONIC.value:
+                # sonic
+                self.send_ultrasonic()
+                self.sonic_count += 1
+            elif cmd == Command.CMD_BUZZER.value:
+                # buzzer 1
+                self.activate_buzzer(split_msg[1])
+            elif cmd == Command.CMD_LIGHT.value:
+                # ??
+                pass
+            else:
+                print(f'Error, unknown command {cmd}')
+        except:
+            print('wrong message format received')
+            return
 
     def activate_motor(self, param):
         # 2000_2000_2000_2000

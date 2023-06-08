@@ -6,8 +6,9 @@ class COMMAND:
     CMD_BUZZER = "CMD_BUZZER"
     CMD_SONIC = "CMD_SONIC"
     CMD_LIGHT = "CMD_LIGHT"
-    CMD_POWER = "CMD_POWER" 
+    CMD_POWER = "CMD_POWER"
     CMD_MODE = "CMD_MODE"
-    CMD_DATA ="CMD_DATA"
+    CMD_DATA = "CMD_DATA"
+
     def __init__(self):
         pass

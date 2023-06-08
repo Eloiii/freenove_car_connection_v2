@@ -1,12 +1,15 @@
+import datetime
+import os
 import pickle
 import socket
 import struct
 import sys
 import time
 from threading import *
-from json import JSONEncoder
+
 import cv2
 import numpy as np
+import tcp_connections.car_utilities as cu
 from tcp_connections.car_utilities.DataCollection import *
 from tcp_connections.command import *
 from db.db import *
@@ -20,7 +23,6 @@ def start_tcp_client(ip, port):
 
 
 class ClientMeta(type):
-
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
@@ -38,13 +40,15 @@ class Client(metaclass=ClientMeta):
         self.client = None
         self.video_port = None
         self.server_ip = None
+        self.imgbytes = None
+        self.initialised = False
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Client, cls).__new__(cls)
         return cls.instance
 
-    def setup(self, ip, port=8787, video_port=8888):
+    def setup(self, ip, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value):
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
@@ -52,31 +56,31 @@ class Client(metaclass=ClientMeta):
         self.last_state = None
         self.data_collection_bool = True
 
-        # thread = Thread(target=self.waiting_for_message)
-        # Thread test pour envoyer des messages
-        # thread_send = Thread(target=self.send_msg)
-        # thread.start()
-        # thread_send.start()
-
         self.onto = start_database()
         thread_data = Thread(target=self.data_collection, args=(ip,))
         thread_data.start()
+        self.initialised = True
 
-
-    def connect_to_video_server(self):
+    def connect_to_video_server(self, framerate):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
-        thread_video = Thread(target=self.request_video)
+        self.video_client.send(framerate.encode('utf-8'))
+        thread_video = Thread(target=self.start_recording)
         thread_video.start()
 
-    def request_video(self):
+    def start_recording(self):
+        n_img = 0
         stream_bytes = b' '
+        directory = str(datetime.datetime.now())
+        os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
                 try:
                     stream_bytes = connection.read(4)
                     frame_length = struct.unpack('<L', stream_bytes[:4])
-                    jpg = connection.read(frame_length[0])
-                    image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    self.imgbytes = connection.read(frame_length[0])
+                    image = cv2.imdecode(np.frombuffer(self.imgbytes, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    cv2.imwrite(f'{directory}/{n_img}.jpg', image)
+                    n_img += 1
                     # showing camera live
                     # cv2.imshow('image', image)
                     # if cv2.waitKey(10) == 13:
@@ -92,7 +96,7 @@ class Client(metaclass=ClientMeta):
         When connected, request for the current state of the car every "timer" value in seconds
         """
         while True:
-            self.client_data_socket = start_tcp_client(ip, 5005)
+            self.client_data_socket = start_tcp_client(ip, Port.PORT_DATA.value)
             try:
                 while True:
                         self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
@@ -117,21 +121,6 @@ class Client(metaclass=ClientMeta):
             finally:
                 self.client_data_socket.close()
 
-    def waiting_for_message(self):
-        while True:
-            data = self.client.recv(1024).decode('utf-8')
-            if data == '':
-                break
-            print(data)
-
-    # def send_msg(self):
-    #     while True:
-    #         txt = input('? ').encode('utf-8')
-    #         n = self.client.send(txt)
-    #         if n != len(txt):
-    #             print('erreur d\'envoie')
-    #             break
-
     def send_msg(self, data):
         """
         data shape : Command.CMD_XXX.value YYY_YYY_YYY_YYY
@@ -139,6 +128,10 @@ class Client(metaclass=ClientMeta):
         n = self.client.send(data.encode('utf-8'))
         if n != len(data):
             print('sending error')
+
+    def close_video_connection(self):
+        self.video_client.shutdown(socket.SHUT_RDWR)
+        self.video_client.close()
 
     def close_connection(self):
         self.client.shutdown(socket.SHUT_RDWR)
@@ -151,4 +144,5 @@ class Client(metaclass=ClientMeta):
 
 
 if __name__ == '__main__':
-    client_ui = Client(sys.argv[1])
+    client_ui = Client()
+    client_ui.setup(sys.argv[1])

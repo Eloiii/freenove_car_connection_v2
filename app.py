@@ -1,77 +1,105 @@
-from flask import Flask, request, session, render_template, url_for, redirect
+from flask import Flask, request, render_template, jsonify, Response
 
 from tcp_connections.client import *
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
-"""
-TODO
-
-prevent choices when no IP given
-another port field for the camera ?
-default port ?
-
-"""
 
 
-@app.route('/', methods=('GET', 'POST'))
-def hello_world():  # put application's code here
-    if request.method == 'POST':
-        ip = request.form['ip']
-        port = request.form['port']
-
-        session['ip'] = ip
-        session['port'] = port
-
-        return redirect(url_for('choices'))
-
-    return render_template('index.html')
-
-
-@app.route('/choices')
-def choices():
+@app.route('/')
+def index():
     return render_template('choices.html')
 
 
-def open_tcp_connection_and_send(command):
-    try:
-        client = Client(session.get('ip'), int(session.get('port')))
-        client.send_msg(command)
-        client.close_connection()
-    except Exception as err:
-        return f"{err}"
+@app.errorhandler(500)
+def internal_server_error(error):
+    return render_template('internal_server_error.html', error=error), 500
 
 
-@app.route('/toggleLed')
-def toggle_led():
+async def send_msg_and_receive_state(command):
+    client = Client()
+    client.send_msg(command)
+
+    data = await client.get_last_state()
+    return data
+
+
+@app.before_request
+def setup_client_connection():
+    ip = request.args.get('ip')
+    port = request.args.get('port')
+    client = Client()
+    if not client.initialised and ip is not None:
+        client.setup(ip, int(port if port is not None else '8787'))
+
+
+@app.route('/setLED')
+async def set_led():
     value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'led {value}')
 
-    return err if err is not None else f'LED set to {value}'
+    state = await send_msg_and_receive_state(f'led {value}')
+
+    return jsonify(state.__dict__)
 
 
 @app.route('/toggleBuzzer')
-def toggle_buzzer():
+async def toggle_buzzer():
     value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'buzzer {value}')
+    state = await send_msg_and_receive_state(f'buzzer {value}')
 
-    return err if err is not None else f'Buzzer set to {value}'
+    return jsonify(state.__dict__)
 
 
 @app.route('/setMotors')
-def set_motors():
+async def set_motors():
     value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'motor {value}')
+    state = await send_msg_and_receive_state(f'motor {value}')
 
-    return err if err is not None else f'Motors set to {value}'
+    return jsonify(state.__dict__)
 
 
 @app.route('/setServo')
-def set_servo():
+async def set_servo():
     value = request.args.get('value')
-    err = open_tcp_connection_and_send(f'servo {value}')
+    state = await send_msg_and_receive_state(f'servo {value}')
 
-    return err if err is not None else f'Servo set to {value}'
+    return jsonify(state.__dict__)
+
+
+def video(framerate):
+    client = Client()
+    client.connect_to_video_server(framerate)
+    while True:
+        if client.imgbytes is not None:
+            yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + client.imgbytes + b'\r\n'
+
+
+@app.route('/get_video')
+def get_video():
+    framerate = request.args.get('framerate')
+    return Response(video(framerate), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/start_recording')
+def start_recording():
+    client = Client()
+    framerate = request.args.get('framerate')
+    client.connect_to_video_server(framerate)
+
+    return 'Recording...'
+
+
+@app.route('/stop_recording')
+def stop_recording():
+    client = Client()
+    client.close_video_connection()
+
+    return 'Recording stopped'
+
+
+@app.route('/controlUI')
+def control_ui():
+    return render_template('control.html')
 
 
 if __name__ == '__main__':

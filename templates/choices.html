@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Commands available{% endblock %}</h1>
+    <h1>{% block title %}Index{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-  <ul>
-      <li><a href="/toggleBuzzer?value=1">Set buzzer to 1</a></li>
-      <li><a href="/toggleLed?value=0x02_255_255_0">Set led to 0x02_255_255_0</a></li>
-      <li><a href="/setMotors?value=0_0_0_0">Set motors to 0_0_0_0</a></li>
-      <li><a href="/setServo?value=1_45">Set servo to 1_45</a></li>
-  </ul>
+    <ul>
+        <li>
+            <a href="/controlUI">Control Interface</a>
+        </li>
+    </ul>
+
+<script src="https://emgithub.com/embed-v2.js?target=https%3A%2F%2Fgithub.com%2FEloiii%2Ffreenove_car_connection_v2%2Fblob%2Fmain%2FREADME.md&style=default&type=markdown&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></script>
+
 {% endblock %}
