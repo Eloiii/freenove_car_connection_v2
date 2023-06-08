@@ -9,7 +9,6 @@ from threading import *
 
 import cv2
 import numpy as np
-import tcp_connections.car_utilities as cu
 from tcp_connections.car_utilities.DataCollection import *
 from tcp_connections.command import *
 from db.db import *
@@ -55,6 +54,7 @@ class Client(metaclass=ClientMeta):
         self.video_client = None
         self.last_state = None
         self.data_collection_bool = True
+        self.timer = 5
 
         self.onto = start_database()
         thread_data = Thread(target=self.data_collection, args=(ip,))
@@ -90,7 +90,7 @@ class Client(metaclass=ClientMeta):
                     cv2.destroyAllWindows()
                     break
 
-    def data_collection(self, ip, timer=5):
+    def data_collection(self, ip):
         """
         Open a socket and try to connect to the given IP at the port 5005
         When connected, request for the current state of the car every "timer" value in seconds
@@ -109,7 +109,7 @@ class Client(metaclass=ClientMeta):
                         printData(data=data)
                         if(self.data_collection_bool):
                             add_car_data_to_db(data=data, onto=self.onto)
-                        time.sleep(timer)
+                        time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
                 print("Trying to reconnect in 5 seconds...")
@@ -120,6 +120,7 @@ class Client(metaclass=ClientMeta):
                 break
             finally:
                 self.client_data_socket.close()
+                default_world.save()
 
     def send_msg(self, data):
         """
@@ -146,3 +147,4 @@ class Client(metaclass=ClientMeta):
 if __name__ == '__main__':
     client_ui = Client()
     client_ui.setup(sys.argv[1])
+

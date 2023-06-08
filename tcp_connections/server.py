@@ -76,12 +76,6 @@ def record_and_send_video(connection, framerate):
 class Server:
 
     def __init__(self, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value, data_port=Port.PORT_DATA.value):
-        self.server = start_tcp_server(port)
-        print(f"Command server up, listening on {port}")
-
-        self.data_socket = start_tcp_server(data_port)
-        print(f"Data server up, listening on {data_port}")
-
         self.motor_manager = Motor()
         self.servo_manager = Servo()
         self.led_manager = Led()
