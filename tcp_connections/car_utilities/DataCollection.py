@@ -21,13 +21,6 @@ class Data:
         self.ultrasonic_inUse = None
         self.buzzer_inUse = None
 
-
-def getData(data:Data, samplin_rate:int=None):
-    '''
-    Used by the client to retrieve the data into the Database
-    Furthermore update the sampling rate
-    '''
-
 def setData(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_voltage:float=None,battery_percent:float=None,isRecording:bool=None,height=None,width=None,FPS=None,CPU:float=None,nb_process:int=None,motor_model=None,leds=None, ultrasonic:bool=None, buzzer:bool=None):
     '''
     Used by the server to update the current state of the car in the Data object
@@ -73,8 +66,8 @@ def printData(data:Data):
       f'Battery: {data.battery_voltage}V {data.battery_percent}%\n'
       f'CPU: {data.CPU_use_percent}% | Number of process: {data.nb_process}\n'
       f'Camera: Is recording: {data.camera_is_recording} | '
-      f'Resolution: {data.camera_resolution_height}x{data.camera_resolution_width} {data.camera_framerate}FPS\n'
-      f'Wheels:\nFR: {data.motor_model[0]} | FL: {data.motor_model[1]} | BR: {data.motor_model[2]} | BL: {data.motor_model[3]}\n'
+      f'Resolution: {data.camera_resolution_width}x{data.camera_resolution_height} {data.camera_framerate}FPS\n'
+      f'Wheels:\nFR: {data.motor_model[0]} | FL: {data.motor_model[1]} | RR: {data.motor_model[2]} | RL: {data.motor_model[3]}\n'
       f'LedsBrightness: {data.leds_state}\n'
       f'Ultrasonic: {data.ultrasonic_inUse}\n'
       f'Buzzer: {data.buzzer_inUse}'

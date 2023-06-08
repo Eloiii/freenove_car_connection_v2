@@ -1,16 +1,20 @@
 from owlready2 import *
 import sys
+import os
 sys.path.append("../")
 from tcp_connections.car_utilities.DataCollection import *
 
-def init_database(owlpath="file://4WD_Car_ontology_specific.owl", sqliet3path="4WD_car_db.sqlite3"):
+def test():
+    print(os.getcwd())
+
+def init_database(owlpath=os.getcwd()+"/4WD_Car_ontology_specific.owl", sqliet3path="4WD_car_db.sqlite3"):
     default_world.set_backend(filename= sqliet3path)
     get_ontology(owlpath).load()
     default_world.save()
 
 def start_database():
     default_world.set_backend(filename= "4WD_car_db.sqlite3")
-    onto = default_world.get_ontology("file:///home/fenrir/INFO4/stage/freenove_car_connection_v2/4WD_Car_ontology_specific.owl").load()
+    onto = default_world.get_ontology(os.getcwd()+"/4WD_Car_ontology_specific.owl").load()
     return onto
 
 def close_database():
@@ -120,8 +124,8 @@ def create_4WD_car(onto:Ontology, MAC:str, IP:str):
     led8 = onto.led(index=7)
     led_strip = onto.led_strip(hasPart=[led1,led2,led3,led4,led5,led6,led7,led8])
 
-    motorFL = onto.motor(position="FL")
-    motorFR = onto.motor(position="FR")
+    motorFL = onto.motor(position="FR")
+    motorFR = onto.motor(position="FL")
     motorRL = onto.motor(position="RR")
     motorRR = onto.motor(position="RL")
     powertrain = onto.powertrain(hasPart=[motorFL,motorFR,motorRL,motorRR])
@@ -150,7 +154,6 @@ if __name__ == "__main__":
     printData(test_data)
     add_car_data_to_db(data=test_data, onto=onto)  
     for each in onto.individuals():
-
         if(not isinstance(each, onto.measure)):
             print("------------------------")
             print(each)
@@ -201,7 +204,7 @@ if __name__ == "__main__":
 #4WD_Car_ontology_specific.is_buzzing
 #4WD_Car_ontology_specific.is_recording
 #4WD_Car_ontology_specific.number_of_process
-#4WD_Car_ontology_specific.red_instensity
+#4WD_Car_ontology_specific.red_intensity
 #4WD_Car_ontology_specific.resolution_height
 #4WD_Car_ontology_specific.resolution_width
 #4WD_Car_ontology_specific.speed

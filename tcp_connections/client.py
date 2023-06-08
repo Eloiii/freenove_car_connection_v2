@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 from tcp_connections.car_utilities.DataCollection import *
 from tcp_connections.command import *
+from db.db import *
 
 
 def start_tcp_client(ip, port):
@@ -49,7 +50,7 @@ class Client(metaclass=ClientMeta):
         self.client = start_tcp_client(ip, port)
         self.video_client = None
         self.last_state = None
-        self.data_collection_bool = False
+        self.data_collection_bool = True
 
         # thread = Thread(target=self.waiting_for_message)
         # Thread test pour envoyer des messages
@@ -57,6 +58,7 @@ class Client(metaclass=ClientMeta):
         # thread.start()
         # thread_send.start()
 
+        self.onto = start_database()
         thread_data = Thread(target=self.data_collection, args=(ip,))
         thread_data.start()
 
@@ -102,7 +104,7 @@ class Client(metaclass=ClientMeta):
                         self.last_state = data
                         printData(data=data)
                         if(self.data_collection_bool):
-                            getData(data=data,samplin_rate=timer)
+                            add_car_data_to_db(data=data, onto=self.onto)
                         time.sleep(timer)
             except socket.error as e:
                 print("Connexion error :", str(e))

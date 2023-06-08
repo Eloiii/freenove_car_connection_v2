@@ -1,4 +1,6 @@
-import psutil
+import sys
+sys.path.append("../../")
+from db.db import test
 
 if __name__ == '__main__':
-    print(len(list(psutil.process_iter())))
+    test()
