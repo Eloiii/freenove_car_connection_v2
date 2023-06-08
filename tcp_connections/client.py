@@ -67,7 +67,7 @@ class Client(metaclass=ClientMeta):
     def start_recording(self):
         n_img = 0
         stream_bytes = b' '
-        directory = str(datetime.datetime.now())
+        directory = 'images_' + str(datetime.datetime.now()).replace(' ', '_')
         os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
