@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, jsonify, Response
-
+from SLAM.ORB import draw_kp
 from tcp_connections.client import *
+import cv2
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -68,10 +69,15 @@ async def set_servo():
 
 def video(framerate):
     client = Client()
-    client.connect_to_video_server(framerate)
+    client.connect_to_video_server(framerate, False)
     while True:
         if client.imgbytes is not None:
-            yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + client.imgbytes + b'\r\n'
+            image = cv2.imdecode(np.frombuffer(client.imgbytes, dtype=np.uint8), cv2.IMREAD_COLOR)
+            image_kp = draw_kp(image)
+            img_encode = cv2.imencode('.jpg', image_kp)[1]
+            data_encode = np.array(img_encode)
+            byte_encode = data_encode.tobytes()
+            yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + byte_encode + b'\r\n'
 
 
 @app.route('/get_video')

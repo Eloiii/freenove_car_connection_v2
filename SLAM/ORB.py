@@ -1,21 +1,27 @@
 import numpy as np
 import cv2 as cv
 import os
-import glob
 
 
-def draw_kp():
+def draw_kp(img):
+    orb = cv.ORB_create()
+
+    kp, des = orb.detectAndCompute(img, None)
+    kp_img = cv.drawKeypoints(img, kp, None, color=(0, 255, 0), flags=0)
+
+    return kp_img
+
+
+def generate_kp_images():
     print(f'{n_files} to be analysed')
 
-    orb = cv.ORB_create()
     orb_dir = 'orb_' + images_dir
     os.mkdir(f'./{orb_dir}')
     for k in range(n_files):
         print(f'image {k}.jpg')
         img = cv.imread(f'../{images_dir}/{k}.jpg', cv.IMREAD_GRAYSCALE)
 
-        kp, des = orb.detectAndCompute(img, None)
-        kp_img = cv.drawKeypoints(img, kp, None, color=(0, 255, 0), flags=0)
+        kp_img = draw_kp(img)
 
         cv.imwrite(f'./{orb_dir}/{k}.jpg', kp_img)
 

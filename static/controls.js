@@ -7,16 +7,16 @@ for (let control of motor_controls) {
         const direction = e.target.classList[0]
         switch (direction) {
             case "forward":
-                send(`/setMotors?ip=${CAR_IP}&value=4000_4000_4000_4000`)
+                send(`/setMotors?ip=${CAR_IP}&value=2000_2000_2000_2000`)
                 break
             case "left":
-                send(`/setMotors?ip=${CAR_IP}&value=4000_4000_-4000_-4000`)
+                send(`/setMotors?ip=${CAR_IP}&value=-2000_-2000_2000_2000`)
                 break
             case "right":
-                send(`/setMotors?ip=${CAR_IP}&value=-4000_-4000_4000_4000`)
+                send(`/setMotors?ip=${CAR_IP}&value=2000_2000_-2000_-2000`)
                 break
             case "backward":
-                send(`/setMotors?ip=${CAR_IP}&value=-4000_-4000_-4000_-4000`)
+                send(`/setMotors?ip=${CAR_IP}&value=-2000_-2000_-2000_-2000`)
                 break
         }
         console.log(direction + ' mousedown')
@@ -68,7 +68,6 @@ for (let control of servos_controls) {
     control.addEventListener('mouseup', () => {
         if (servoTimer) {
             clearInterval(servoTimer)
-            servos_values = [90, 90]
         }
     })
 }

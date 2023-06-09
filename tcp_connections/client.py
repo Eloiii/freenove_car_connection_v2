@@ -58,17 +58,18 @@ class Client(metaclass=ClientMeta):
         thread_data.start()
         self.initialised = True
 
-    def connect_to_video_server(self, framerate):
+    def connect_to_video_server(self, framerate, save_images=True):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
         self.video_client.send(framerate.encode('utf-8'))
-        thread_video = Thread(target=self.start_recording)
+        thread_video = Thread(target=self.start_recording, args=(save_images, ))
         thread_video.start()
 
-    def start_recording(self):
+    def start_recording(self, save_images=True):
         n_img = 0
         stream_bytes = b' '
-        directory = 'images_' + str(datetime.datetime.now()).replace(' ', '_')
-        os.mkdir(f'./{directory}')
+        if save_images:
+            directory = 'images_' + str(datetime.datetime.now()).replace(' ', '_')
+            os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
                 try:
@@ -76,7 +77,8 @@ class Client(metaclass=ClientMeta):
                     frame_length = struct.unpack('<L', stream_bytes[:4])
                     self.imgbytes = connection.read(frame_length[0])
                     image = cv2.imdecode(np.frombuffer(self.imgbytes, dtype=np.uint8), cv2.IMREAD_COLOR)
-                    cv2.imwrite(f'{directory}/{n_img}.jpg', image)
+                    if save_images:
+                        cv2.imwrite(f'{directory}/{n_img}.jpg', image)
                     n_img += 1
                     # showing camera live
                     # cv2.imshow('image', image)
