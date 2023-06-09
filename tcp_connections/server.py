@@ -125,13 +125,13 @@ class Server:
             thread.start()
 
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
-
-        if framerate != None:
-            self.camera_framerate = framerate
-        if resolution_width != None:
-            self.camera_width = resolution_width
-        if resolution_height != None:
-            self.camera_heigt = resolution_height
+        
+        if framerate is not None:
+            self.camera_framerate = int(framerate)
+        if resolution_width is not None:
+            self.camera_width = int(resolution_width)
+        if resolution_height is not None:
+            self.camera_heigt = int(resolution_height)
 
         camera = Picamera2()
         camera.configure(camera.create_video_configuration(main={"size": (self.camera_width, self.camera_heigt)}))
@@ -171,7 +171,7 @@ class Server:
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if (data == Command.CMD_DATA.value):
+                    if data == Command.CMD_DATA.value:
                         set_data(data=self.data,
                                  MAC=get_mac_address(),
                                  IP=None,
