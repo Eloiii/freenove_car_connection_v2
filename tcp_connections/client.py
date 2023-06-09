@@ -1,16 +1,14 @@
-import datetime
-import os
 import pickle
 import socket
 import struct
 import sys
-import time
-import cv2
-import numpy as np
 from threading import *
 
-from command import *
+import cv2
+import numpy as np
+
 from car_utilities.camera_data import *
+from command import *
 
 sys.path.append('..')
 from database.db import *

@@ -17,7 +17,6 @@ from car_utilities.DataCollection import *
 from car_utilities.Led import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
-from car_utilities.camera_data import *
 from command import *
 
 
@@ -49,9 +48,6 @@ def start_tcp_server(port):
     server.bind((ip_addr, port))
     server.listen(1)
     return server
-
-
-
 
 
 class Server:
@@ -124,16 +120,17 @@ class Server:
 
             connection = connection.makefile('wb')
 
-            thread = Thread(target=self.record_and_send_video, args=(connection, camera_data.framerate, camera_data.width, camera_data.height))
+            thread = Thread(target=self.record_and_send_video,
+                            args=(connection, camera_data.framerate, camera_data.width, camera_data.height))
             thread.start()
 
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
-        
-        if framerate!=None:
+
+        if framerate != None:
             self.camera_framerate = framerate
-        if resolution_width!=None:
+        if resolution_width != None:
             self.camera_width = resolution_width
-        if resolution_height !=None:
+        if resolution_height != None:
             self.camera_heigt = resolution_height
 
         camera = Picamera2()
@@ -154,7 +151,7 @@ class Server:
             except:
                 camera.stop_recording()
                 camera.close()
-                self.camera_is_recording=False
+                self.camera_is_recording = False
                 print("End transmit ... ")
                 break
             time.sleep(1 / self.camera_framerate)
@@ -174,22 +171,22 @@ class Server:
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if(data== Command.CMD_DATA.value):
+                    if (data == Command.CMD_DATA.value):
                         set_data(data=self.data,
-                                MAC=get_mac_address(),
-                                IP=None,
-                                battery_voltage=self.adc.recvADC(2)*3,
-                                battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
-                                isRecording=self.camera_is_recording,
-                                width = self.camera_width,
-                                height =self.camera_heigt,
-                                FPS = self.camera_framerate,
-                                CPU=psutil.cpu_percent(),
-                                nb_process=len(list(psutil.process_iter())),
-                                motor_model=self.motor_manager.getMotorModel(),
-                                leds=self.led_manager.ledsState(),
-                                ultrasonic=self.sonic,
-                                buzzer=self.buzzer_manager.isOn())        
+                                 MAC=get_mac_address(),
+                                 IP=None,
+                                 battery_voltage=self.adc.recvADC(2) * 3,
+                                 battery_percent=float((self.adc.recvADC(2) * 3) - 7) / 1.40 * 100,
+                                 isRecording=self.camera_is_recording,
+                                 width=self.camera_width,
+                                 height=self.camera_heigt,
+                                 FPS=self.camera_framerate,
+                                 CPU=psutil.cpu_percent(),
+                                 nb_process=len(list(psutil.process_iter())),
+                                 motor_model=self.motor_manager.getMotorModel(),
+                                 leds=self.led_manager.ledsState(),
+                                 ultrasonic=self.sonic,
+                                 buzzer=self.buzzer_manager.isOn())
                         client.send(pickle.dumps(self.data))
                     else:
                         print("Invalid request :", str(data))

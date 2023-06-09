@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
 
 from .Motor import *
-from .PCA9685 import *
 from .servo import *
 
 
