@@ -1,9 +1,6 @@
-import datetime
-import os
 import pickle
 import socket
 import struct
-import sys
 from threading import *
 
 import cv2
@@ -12,8 +9,8 @@ import numpy as np
 from car_utilities.camera_data import *
 from command import *
 
-sys.path.append('..')
 from database.db import *
+sys.path.append('..')
 
 
 def start_tcp_client(ip, port):
@@ -36,12 +33,14 @@ class ClientMeta(type):
 class Client(metaclass=ClientMeta):
 
     def __init__(self):
+        self.timer = None
+        self.data_collection_bool = None
         self.last_state = None
         self.video_client = None
         self.client = None
         self.video_port = None
         self.server_ip = None
-        self.imgbytes = None
+        self.img_bytes = None
         self.initialised = False
 
         self.thread_bool = True
@@ -64,14 +63,14 @@ class Client(metaclass=ClientMeta):
         thread_data.start()
         self.initialised = True
 
-    def connect_to_video_server(self, framerate, save_images=True, width, height):
+    def connect_to_video_server(self, framerate, width, height, save_images=True):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
         camera_data = Camera_data()
         camera_data.framerate = framerate
         camera_data.width = width
         camera_data.height = height
         self.video_client.send(pickle.dumps(camera_data))
-        thread_video = Thread(target=self.start_recording, args=(save_images, ))
+        thread_video = Thread(target=self.start_recording, args=(save_images,))
         thread_video.start()
 
     def start_recording(self, save_images=True):
@@ -85,8 +84,8 @@ class Client(metaclass=ClientMeta):
                 try:
                     stream_bytes = connection.read(4)
                     frame_length = struct.unpack('<L', stream_bytes[:4])
-                    self.imgbytes = connection.read(frame_length[0])
-                    image = cv2.imdecode(np.frombuffer(self.imgbytes, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    self.img_bytes = connection.read(frame_length[0])
+                    image = cv2.imdecode(np.frombuffer(self.img_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
                     if save_images:
                         cv2.imwrite(f'{directory}/{n_img}.jpg', image)
                     n_img += 1
@@ -119,7 +118,7 @@ class Client(metaclass=ClientMeta):
                     if (self.data_collection_bool):
                         add_car_data_to_db(data=data, onto=onto)
                         default_world.save()
-                    print_data(self.last_state)
+                    # print_data(self.last_state)
                     time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))

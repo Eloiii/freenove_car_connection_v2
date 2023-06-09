@@ -69,10 +69,10 @@ async def set_servo():
 
 def video(framerate):
     client = Client()
-    client.connect_to_video_server(framerate, False)
+    client.connect_to_video_server(framerate, 400, 300, False)
     while True:
-        if client.imgbytes is not None:
-            image = cv2.imdecode(np.frombuffer(client.imgbytes, dtype=np.uint8), cv2.IMREAD_COLOR)
+        if client.img_bytes is not None:
+            image = cv2.imdecode(np.frombuffer(client.img_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
             image_kp = draw_kp(image)
             img_encode = cv2.imencode('.jpg', image_kp)[1]
             data_encode = np.array(img_encode)

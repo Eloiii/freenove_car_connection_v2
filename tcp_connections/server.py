@@ -127,11 +127,11 @@ class Server:
 
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
 
-        if framerate != None:
+        if framerate is not None:
             self.camera_framerate = framerate
-        if resolution_width != None:
+        if resolution_width is not None:
             self.camera_width = resolution_width
-        if resolution_height != None:
+        if resolution_height is not None:
             self.camera_heigt = resolution_height
 
         try:
@@ -173,7 +173,7 @@ class Server:
                     if not data:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
-                    if (data == Command.CMD_DATA.value):
+                    if data == Command.CMD_DATA.value:
                         set_data(data=self.data,
                                  MAC=get_mac_address(),
                                  IP=None,
