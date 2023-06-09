@@ -51,26 +51,30 @@ def start_tcp_server(port):
 
 
 def record_and_send_video(connection, framerate):
-    camera = Picamera2()
-    camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
-    output = StreamingOutput()
-    encoder = MJPEGEncoder(10000000)
-    camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
-    while True:
-        with output.condition:
-            output.condition.wait()
-            frame = output.frame
-        try:
-            frame_length = len(output.frame)
-            frame_length_binary = struct.pack('<I', frame_length)
-            connection.write(frame_length_binary)
-            connection.write(frame)
-        except:
-            camera.stop_recording()
-            camera.close()
-            print("End transmit ... ")
-            break
-        time.sleep(1 / framerate)
+    try:
+        camera = Picamera2()
+        camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
+        output = StreamingOutput()
+        encoder = MJPEGEncoder(10000000)
+        camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
+        while True:
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+            try:
+                frame_length = len(output.frame)
+                frame_length_binary = struct.pack('<I', frame_length)
+                connection.write(frame_length_binary)
+                connection.write(frame)
+            except:
+                camera.stop_recording()
+                camera.close()
+                print("End transmit ... ")
+                break
+            time.sleep(1 / framerate)
+    except:
+        camera.stop_recording()
+        camera.close()
 
 
 class Server:
