@@ -123,7 +123,7 @@ class Server:
             thread = Thread(target=self.record_and_send_video,
                             args=(connection, camera_data.framerate, camera_data.width, camera_data.height))
             thread.start()
-            # thread.join()
+            thread.join()
 
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
 
