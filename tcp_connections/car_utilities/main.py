@@ -1,14 +1,15 @@
-import io
+import getopt
 import os
-import struct
-import sys, getopt
-from Thread import *
+import sys
 from threading import Thread
-from server import Server
-from server_ui import Ui_server_ui
+
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from Thread import *
+from server_ui import Ui_server_ui
+
+from server import Server
 
 
 class mywindow(QMainWindow, Ui_server_ui):
