@@ -77,7 +77,7 @@ class Client(metaclass=ClientMeta):
         n_img = 0
         stream_bytes = b' '
         if save_images:
-            directory = 'images_' + str(datetime.datetime.now()).replace(' ', '_')
+            directory = 'images_' + str(datetime.now()).replace(' ', '_')
             os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
