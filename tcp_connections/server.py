@@ -128,11 +128,11 @@ class Server:
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
 
         if framerate is not None:
-            self.camera_framerate = framerate
+            self.camera_framerate = int(framerate)
         if resolution_width is not None:
-            self.camera_width = resolution_width
+            self.camera_width = int(resolution_width)
         if resolution_height is not None:
-            self.camera_heigt = resolution_height
+            self.camera_heigt = int(resolution_height)
 
         try:
             camera = Picamera2()
