@@ -77,7 +77,7 @@ class Server:
         thread.start()
 
         self.camera_is_recording = False
-        self.camera_heigt = 300
+        self.camera_height = 300
         self.camera_width = 400
         self.camera_framerate = 25
         thread_camera = Thread(target=self.waiting_for_camera_connection)
@@ -123,7 +123,7 @@ class Server:
             thread = Thread(target=self.record_and_send_video,
                             args=(connection, camera_data.framerate, camera_data.width, camera_data.height))
             thread.start()
-            thread.join()
+            # thread.join()
 
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
 
@@ -132,11 +132,11 @@ class Server:
         if resolution_width is not None:
             self.camera_width = int(resolution_width)
         if resolution_height is not None:
-            self.camera_heigt = int(resolution_height)
+            self.camera_height = int(resolution_height)
 
         try:
             camera = Picamera2()
-            camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
+            camera.configure(camera.create_video_configuration(main={"size": (self.camera_width, self.camera_height)}))
             output = StreamingOutput()
             encoder = MJPEGEncoder(10000000)
             camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
@@ -154,7 +154,7 @@ class Server:
                     camera.close()
                     print("End transmit ... ")
                     break
-                time.sleep(1 / framerate)
+                time.sleep(1 / self.camera_framerate)
         except:
             return
 
@@ -181,7 +181,7 @@ class Server:
                                  battery_percent=float((self.adc.recvADC(2) * 3) - 7) / 1.40 * 100,
                                  isRecording=self.camera_is_recording,
                                  width=self.camera_width,
-                                 height=self.camera_heigt,
+                                 height=self.camera_height,
                                  FPS=self.camera_framerate,
                                  CPU=psutil.cpu_percent(),
                                  nb_process=len(list(psutil.process_iter())),
