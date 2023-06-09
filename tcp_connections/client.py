@@ -11,8 +11,10 @@ from threading import *
 
 from command import *
 from car_utilities.camera_data import *
+
 sys.path.append('..')
 from database.db import *
+
 
 def start_tcp_client(ip, port):
     client = socket.socket()
@@ -20,13 +22,16 @@ def start_tcp_client(ip, port):
     print(f'Connected to {ip}:{port}')
     return client
 
+
 class ClientMeta(type):
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
+
 
 class Client(metaclass=ClientMeta):
 
@@ -55,7 +60,7 @@ class Client(metaclass=ClientMeta):
         self.data_collection_bool = True
 
         self.timer = 1
-        thread_data = Thread(target=self.data_collection, args=(ip,data_port,))
+        thread_data = Thread(target=self.data_collection, args=(ip, data_port,))
         thread_data.start()
         self.initialised = True
 
@@ -72,7 +77,7 @@ class Client(metaclass=ClientMeta):
     def start_recording(self):
         n_img = 0
         stream_bytes = b' '
-        directory = str(datetime.datetime.now())
+        directory = str(datetime.now())
         os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
@@ -102,24 +107,23 @@ class Client(metaclass=ClientMeta):
             self.client_data_socket = start_tcp_client(ip, port)
             try:
                 while self.thread_bool:
-                        self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
-                        serialized_data = self.client_data_socket.recv(1024)
-                        if not serialized_data:
-                            print("Connexion with server lost...")
-                            break
-                        data = pickle.loads(serialized_data)
-                        self.last_state = data
-                        if(self.data_collection_bool):
-                            add_car_data_to_db(data=data, onto=onto)
-                            default_world.save()
-                        print_data(self.last_state)
-                        time.sleep(self.timer)
+                    self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                    serialized_data = self.client_data_socket.recv(1024)
+                    if not serialized_data:
+                        print("Connexion with server lost...")
+                        break
+                    data = pickle.loads(serialized_data)
+                    self.last_state = data
+                    if (self.data_collection_bool):
+                        add_car_data_to_db(data=data, onto=onto)
+                        default_world.save()
+                    print_data(self.last_state)
+                    time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
                 print("Trying to reconnect in 5 seconds...")
                 time.sleep(5)
                 continue
-                
 
     def send_msg(self, data):
         """
@@ -150,4 +154,3 @@ class Client(metaclass=ClientMeta):
 if __name__ == '__main__':
     client_ui = Client()
     client_ui.setup(sys.argv[1])
-

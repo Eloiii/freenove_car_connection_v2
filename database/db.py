@@ -4,16 +4,16 @@ import sys
 sys.path.append("..")
 from tcp_connections.car_utilities.DataCollection import *
 
-DB_ABSOLUTE_PATH = os.getcwd()+"/db/"
+DB_ABSOLUTE_PATH = os.getcwd()
 
-def init_database(owlpath="file://"+DB_ABSOLUTE_PATH+"/4WD_Car_ontology_specific.owl", sqliet3path=DB_ABSOLUTE_PATH+"4WD_car_db.sqlite3"):
+def init_database(owlpath="file://"+DB_ABSOLUTE_PATH+"/4WD_Car_ontology_specific.owl", sqliet3path=DB_ABSOLUTE_PATH+"/4WD_car_db.sqlite3"):
     default_world.set_backend(filename= sqliet3path)
     onto = get_ontology(owlpath).load()
     print_ontology(onto)
     default_world.save()
 
 def start_database():
-    default_world.set_backend(filename= "db/4WD_car_db.sqlite3")
+    default_world.set_backend(filename= "database/4WD_car_db.sqlite3", exclusive=False)
     onto = default_world.get_ontology("http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology").load()
     return onto
 
