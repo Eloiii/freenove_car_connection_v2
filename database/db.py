@@ -1,24 +1,21 @@
 from owlready2 import *
-import sys
 import os
-sys.path.append("../")
+import sys
+sys.path.append("..")
 from tcp_connections.car_utilities.DataCollection import *
 
-def test():
-    print(os.getcwd())
+DB_ABSOLUTE_PATH = os.getcwd()+"/db/"
 
-def init_database(owlpath=os.getcwd()+"/4WD_Car_ontology_specific.owl", sqliet3path="4WD_car_db.sqlite3"):
+def init_database(owlpath="file://"+DB_ABSOLUTE_PATH+"/4WD_Car_ontology_specific.owl", sqliet3path=DB_ABSOLUTE_PATH+"4WD_car_db.sqlite3"):
     default_world.set_backend(filename= sqliet3path)
-    get_ontology(owlpath).load()
+    onto = get_ontology(owlpath).load()
+    print_ontology(onto)
     default_world.save()
 
 def start_database():
-    default_world.set_backend(filename= "4WD_car_db.sqlite3")
-    onto = default_world.get_ontology(os.getcwd()+"/4WD_Car_ontology_specific.owl").load()
+    default_world.set_backend(filename= "db/4WD_car_db.sqlite3")
+    onto = default_world.get_ontology("http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology").load()
     return onto
-
-def close_database():
-    default_world.save()
 
 def print_ontology(onto:Ontology):
     print("----------------Classes----------------")
@@ -35,13 +32,13 @@ def print_ontology(onto:Ontology):
     print("---------------------------------------")
     
 def add_car_data_to_db(data:Data, onto:Ontology):
-    print(onto)
     existing_car = onto.search_one(is_a=onto.car, MAC_address=data.Car_MAC_address)
     if(existing_car == None):
         existing_car = create_4WD_car(onto=onto, MAC=data.Car_MAC_address, IP=data.Car_IP_address)
     add_measured_data(car=existing_car, onto=onto, data=data)
 
 def add_measured_data(car,onto:Ontology, data:Data):
+    car.IP_address = data.Car_IP_address
     for part in car.hasPart:
        auto_map_part(part, onto=onto, data=data)
     for subAssembly in car.hasSubAssembly:
@@ -134,38 +131,7 @@ def create_4WD_car(onto:Ontology, MAC:str, IP:str):
     return car
 
 if __name__ == "__main__":   
-    onto = start_database()
-    test_data = Data()
-    setData(data=test_data,
-                                MAC="TEST:CAR:TO:REMOVE",
-                                IP="127.0.0.1",
-                                battery_voltage=8.8,
-                                battery_percent=95,
-                                isRecording=False,
-                                width = 1980,
-                                height = 1080,
-                                FPS = 60,
-                                CPU=5,
-                                nb_process=50,
-                                motor_model=[123,456,789,0],
-                                leds=[(255,255,125),(255,0,125),(255,0,125),(255,0,125),(255,0,125),(255,0,125),(255,0,125),(255,0,125)],
-                                ultrasonic=False,
-                                buzzer=True) 
-    printData(test_data)
-    add_car_data_to_db(data=test_data, onto=onto)  
-    for each in onto.individuals():
-        if(not isinstance(each, onto.measure)):
-            print("------------------------")
-            print(each)
-            try:
-                measure = each.hasMeasure[0]
-                for prop in measure.get_properties():
-                    for value in prop[measure]:
-                        print(".%s == %s" % (prop.python_name, value))
-                print("------------------------")
-            except:
-                continue
-
+    init_database()
 
 ############################################################################
 #Ontology that we will be using built on top of an abstracte one

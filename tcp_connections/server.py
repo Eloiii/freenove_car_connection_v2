@@ -17,6 +17,7 @@ from car_utilities.DataCollection import *
 from car_utilities.Led import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
+from car_utilities.camera_data import *
 from command import *
 
 
@@ -50,27 +51,7 @@ def start_tcp_server(port):
     return server
 
 
-def record_and_send_video(connection, framerate):
-    camera = Picamera2()
-    camera.configure(camera.create_video_configuration(main={"size": (400, 300)}))
-    output = StreamingOutput()
-    encoder = MJPEGEncoder(10000000)
-    camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
-    while True:
-        with output.condition:
-            output.condition.wait()
-            frame = output.frame
-        try:
-            frame_length = len(output.frame)
-            frame_length_binary = struct.pack('<I', frame_length)
-            connection.write(frame_length_binary)
-            connection.write(frame)
-        except:
-            camera.stop_recording()
-            camera.close()
-            print("End transmit ... ")
-            break
-        time.sleep(1 / framerate)
+
 
 
 class Server:
@@ -98,6 +79,11 @@ class Server:
         data_thread.start()
         thread = Thread(target=self.waiting_for_connection)
         thread.start()
+
+        self.camera_is_recording = False
+        self.camera_heigt = 300
+        self.camera_width = 400
+        self.camera_framerate = 25
         thread_camera = Thread(target=self.waiting_for_camera_connection)
         thread_camera.start()
 
@@ -133,12 +119,45 @@ class Server:
         while True:
             connection, client_address = self.video_server.accept()
 
-            framerate = connection.recv(1024).decode('utf-8')
+            raw_camera_data = connection.recv(1024)
+            camera_data = pickle.loads(raw_camera_data)
 
             connection = connection.makefile('wb')
 
-            thread = Thread(target=record_and_send_video, args=(connection, int(framerate),))
+            thread = Thread(target=self.record_and_send_video, args=(connection, camera_data.framerate, camera_data.width, camera_data.height))
             thread.start()
+
+    def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
+        
+        if framerate!=None:
+            self.camera_framerate = framerate
+        if resolution_width!=None:
+            self.camera_width = resolution_width
+        if resolution_height !=None:
+            self.camera_heigt = resolution_height
+
+        camera = Picamera2()
+        camera.configure(camera.create_video_configuration(main={"size": (self.camera_width, self.camera_heigt)}))
+        output = StreamingOutput()
+        encoder = MJPEGEncoder(10000000)
+        camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
+        self.camera_is_recording = True
+        while True:
+            with output.condition:
+                output.condition.wait()
+                frame = output.frame
+            try:
+                frame_length = len(output.frame)
+                frame_length_binary = struct.pack('<I', frame_length)
+                connection.write(frame_length_binary)
+                connection.write(frame)
+            except:
+                camera.stop_recording()
+                camera.close()
+                self.camera_is_recording=False
+                print("End transmit ... ")
+                break
+            time.sleep(1 / self.camera_framerate)
 
     def data_collection(self):
         """
@@ -156,16 +175,15 @@ class Server:
                         print("Connexion with client lost on data socket lost :", client_addr)
                         break
                     if(data== Command.CMD_DATA.value):
-                        setData(data=self.data,
+                        set_data(data=self.data,
                                 MAC=get_mac_address(),
                                 IP=None,
                                 battery_voltage=self.adc.recvADC(2)*3,
                                 battery_percent=float((self.adc.recvADC(2)*3)-7)/1.40*100,
-                                #cap = cv2.VideoCapture(0)
-                                isRecording=False,#cap.isOpened(),
-                                width = None,#cap.get(cv2.CAP_PROP_FRAME_WIDTH),
-                                height = None,#cap.get(cv2.CAP_PROP_FRAME_HEIGHT),
-                                FPS = None,#cap.get(cv2.CAP_PROP_FPS),
+                                isRecording=self.camera_is_recording,
+                                width = self.camera_width,
+                                height =self.camera_heigt,
+                                FPS = self.camera_framerate,
                                 CPU=psutil.cpu_percent(),
                                 nb_process=len(list(psutil.process_iter())),
                                 motor_model=self.motor_manager.getMotorModel(),

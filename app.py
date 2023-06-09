@@ -1,5 +1,4 @@
 from flask import Flask, request, render_template, jsonify, Response
-
 from tcp_connections.client import *
 
 app = Flask(__name__)
@@ -84,7 +83,9 @@ def get_video():
 def start_recording():
     client = Client()
     framerate = request.args.get('framerate')
-    client.connect_to_video_server(framerate)
+    width = request.args.get('width')
+    height = request.args.get('height')
+    client.connect_to_video_server(framerate, width, height)
 
     return 'Recording...'
 

@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 class Data:
@@ -21,7 +20,7 @@ class Data:
         self.ultrasonic_inUse = None
         self.buzzer_inUse = None
 
-def setData(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_voltage:float=None,battery_percent:float=None,isRecording:bool=None,height=None,width=None,FPS=None,CPU:float=None,nb_process:int=None,motor_model=None,leds=None, ultrasonic:bool=None, buzzer:bool=None):
+def set_data(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_voltage:float=None,battery_percent:float=None,isRecording:bool=None,height=None,width=None,FPS=None,CPU:float=None,nb_process:int=None,motor_model=None,leds=None, ultrasonic:bool=None, buzzer:bool=None):
     '''
     Used by the server to update the current state of the car in the Data object
     '''
@@ -57,7 +56,7 @@ def setData(data:Data,MAC:str=None,IP:str=None,sampl_rate:int=None,battery_volta
     if buzzer!=None:
         data.buzzer_inUse = buzzer
 
-def printData(data:Data):
+def print_data(data:Data):
     print("____________________________________________________________________________________________________\n"
       f'Car MAC address: {data.Car_MAC_address}\n'
       f'Car IP Address: {str(data.Car_IP_address)}\n'
