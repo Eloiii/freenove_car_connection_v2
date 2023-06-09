@@ -73,8 +73,7 @@ def record_and_send_video(connection, framerate):
                 break
             time.sleep(1 / framerate)
     except:
-        camera.stop_recording()
-        camera.close()
+        return
 
 
 class Server:
@@ -142,6 +141,7 @@ class Server:
 
             thread = Thread(target=record_and_send_video, args=(connection, int(framerate),))
             thread.start()
+            thread.join()
 
     def data_collection(self):
         """
