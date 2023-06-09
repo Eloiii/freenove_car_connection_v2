@@ -125,7 +125,7 @@ class Server:
             thread.start()
 
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
-        
+
         if framerate is not None:
             self.camera_framerate = int(framerate)
         if resolution_width is not None:
@@ -158,10 +158,9 @@ class Server:
 
     def data_collection(self):
         """
-        When the data_socket is open.
-        This function put the socket in listening mode for a client to connect.
-        When the client is connected, the socket wait for it to send a request for the data of the car and send them to him when he request them
-        using pickle serialization.
+        When the data_socket is open. This function put the socket in listening mode for a client to connect. When
+        the client is connected, the socket wait for it to send a request for the data of the car and send them to
+        him when it request them using pickle serialization.
         """
         while True:
             client, client_addr = self.data_socket.accept()
@@ -222,7 +221,6 @@ class Server:
             elif cmd == Command.CMD_SONIC.value:
                 # sonic
                 self.send_ultrasonic()
-                self.sonic_count += 1
             elif cmd == Command.CMD_BUZZER.value:
                 # buzzer 1
                 self.activate_buzzer(split_msg[1])

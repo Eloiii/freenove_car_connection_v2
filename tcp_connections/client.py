@@ -35,6 +35,8 @@ class Client(metaclass=ClientMeta):
 
     def __init__(self):
         self.last_state = None
+        self.data_collection_bool = True
+        self.timer = 1
         self.video_client = None
         self.client = None
         self.video_port = None
@@ -42,7 +44,6 @@ class Client(metaclass=ClientMeta):
         self.imgbytes = None
         self.initialised = False
 
-        self.thread_bool = True
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, 'instance'):
@@ -55,9 +56,7 @@ class Client(metaclass=ClientMeta):
         self.client = start_tcp_client(ip, port)
         self.video_client = None
         self.last_state = None
-        self.data_collection_bool = True
 
-        self.timer = 1
         thread_data = Thread(target=self.data_collection, args=(ip, data_port,))
         thread_data.start()
         self.initialised = True
@@ -112,7 +111,7 @@ class Client(metaclass=ClientMeta):
                         break
                     data = pickle.loads(serialized_data)
                     self.last_state = data
-                    if (self.data_collection_bool):
+                    if self.data_collection_bool:
                         add_car_data_to_db(data=data, onto=onto)
                         default_world.save()
                     print_data(self.last_state)

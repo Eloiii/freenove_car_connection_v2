@@ -40,7 +40,7 @@ def print_ontology(onto: Ontology):
 
 def add_car_data_to_db(data: Data, onto: Ontology):
     existing_car = onto.search_one(is_a=onto.car, MAC_address=data.Car_MAC_address)
-    if (existing_car == None):
+    if existing_car is None:
         existing_car = create_4WD_car(onto=onto, MAC=data.Car_MAC_address, IP=data.Car_IP_address)
     add_measured_data(car=existing_car, onto=onto, data=data)
 
@@ -54,31 +54,31 @@ def add_measured_data(car, onto: Ontology, data: Data):
 
 
 def auto_map_sub_assembly(sub, onto: Ontology, data: Data):
-    if (isinstance(sub, onto.led_strip)):
+    if isinstance(sub, onto.led_strip):
         rgb = data.leds_state
         for led in sub.hasPart:
             new_measure = onto.measure()
-            new_measure.timestamp = (data.timestamp)
+            new_measure.timestamp = data.timestamp
             index = led.index
             new_measure.red_intensity = (rgb[index][0])
             new_measure.green_intensity = (rgb[index][1])
             new_measure.blue_intensity = (rgb[index][2])
             led.hasMeasure.append(new_measure)
 
-    elif (isinstance(sub, onto.powertrain)):
+    elif isinstance(sub, onto.powertrain):
         motor_model = data.motor_model
         for motor in sub.hasPart:
             new_measure = onto.measure()
-            new_measure.timestamp = (data.timestamp)
+            new_measure.timestamp = data.timestamp
             position = motor.position
-            new_measure.position = (position)
-            if (position == "FR"):
+            new_measure.position = position
+            if position == "FR":
                 new_measure.speed = (motor_model[0])
-            elif (position == "FL"):
+            elif position == "FL":
                 new_measure.speed = (motor_model[1])
-            elif (position == "RR"):
+            elif position == "RR":
                 new_measure.speed = (motor_model[2])
-            elif (position == "RL"):
+            elif position == "RL":
                 new_measure.speed = (motor_model[3])
             motor.hasMeasure.append(new_measure)
 
@@ -86,31 +86,31 @@ def auto_map_sub_assembly(sub, onto: Ontology, data: Data):
 def auto_map_part(part, onto: Ontology, data: Data):
     new_measure = onto.measure()
     new_measure.timestamp = data.timestamp
-    if (isinstance(part, onto.battery)):
-        new_measure.voltage = (data.battery_voltage)
-        new_measure.charge = (data.battery_percent)
+    if isinstance(part, onto.battery):
+        new_measure.voltage = data.battery_voltage
+        new_measure.charge = data.battery_percent
 
-    elif (isinstance(part, onto.camera)):
-        new_measure.is_recording = (data.camera_is_recording)
-        new_measure.framerate = (data.camera_framerate)
-        new_measure.resolution_height = (data.camera_resolution_height)
-        new_measure.resolution_width = (data.camera_resolution_width)
+    elif isinstance(part, onto.camera):
+        new_measure.is_recording = data.camera_is_recording
+        new_measure.framerate = data.camera_framerate
+        new_measure.resolution_height = data.camera_resolution_height
+        new_measure.resolution_width = data.camera_resolution_width
 
-    elif (isinstance(part, onto.CPU)):
-        new_measure.use_percent = (data.CPU_use_percent)
-        new_measure.number_of_process = (data.nb_process)
-        new_measure.samplin_rate = (data.samplin_rate)
+    elif isinstance(part, onto.CPU):
+        new_measure.use_percent = data.CPU_use_percent
+        new_measure.number_of_process = data.nb_process
+        new_measure.samplin_rate = data.samplin_rate
 
-    elif (isinstance(part, onto.buzzer)):
-        new_measure.is_buzzing = (data.buzzer_inUse)
+    elif isinstance(part, onto.buzzer):
+        new_measure.is_buzzing = data.buzzer_inUse
 
-    elif (isinstance(part, onto.ultrasonic)):
-        new_measure.ultrasonicOn = (data.ultrasonic_inUse)
+    elif isinstance(part, onto.ultrasonic):
+        new_measure.ultrasonicOn = data.ultrasonic_inUse
 
     part.hasMeasure.append(new_measure)
 
 
-def create_4WD_car(onto: Ontology, MAC: str, IP: str):
+def create_4WD_car(onto: Ontology, mac: str, ip: str):
     records = onto.records()
     battery = onto.battery()
     cpu = onto.CPU()
@@ -134,7 +134,7 @@ def create_4WD_car(onto: Ontology, MAC: str, IP: str):
     motorRR = onto.motor(position="RL")
     powertrain = onto.powertrain(hasPart=[motorFL, motorFR, motorRL, motorRR])
 
-    car = onto.car(MAC_address=MAC, IP_address=IP, recorded=[records], hasSubAssembly=[powertrain, led_strip],
+    car = onto.car(MAC_address=mac, IP_address=ip, recorded=[records], hasSubAssembly=[powertrain, led_strip],
                    hasPart=[battery, cpu, camera, buzzer, ultrasonic])
     return car
 
