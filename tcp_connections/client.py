@@ -35,7 +35,7 @@ class Client(metaclass=ClientMeta):
 
     def __init__(self):
         self.last_state = None
-        self.data_collection_bool = True
+        self.data_collection_bool = False
         self.timer = 1
         self.video_client = None
         self.client = None
@@ -100,10 +100,10 @@ class Client(metaclass=ClientMeta):
         When connected, request for the current state of the car every "timer" value in seconds
         """
         onto = start_database()
-        while self.thread_bool:
+        while True:
             self.client_data_socket = start_tcp_client(ip, port)
             try:
-                while self.thread_bool:
+                while True:
                     self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
                     serialized_data = self.client_data_socket.recv(1024)
                     if not serialized_data:
