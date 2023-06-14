@@ -1,11 +1,11 @@
 import pickle
 import socket
 import struct
-from threading import *
 import cv2
 import numpy as np
-from car_utilities.camera_data import *
+from threading import *
 from command import *
+from car_utilities.camera_data import *
 from database.db import *
 
 

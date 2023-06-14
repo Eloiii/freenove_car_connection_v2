@@ -7,9 +7,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Thread import *
-from server_ui import Ui_server_ui
-
 from server import Server
+from server_ui import Ui_server_ui
 
 
 class mywindow(QMainWindow, Ui_server_ui):

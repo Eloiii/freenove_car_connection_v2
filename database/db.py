@@ -1,8 +1,7 @@
-from owlready2 import *
 import os
-import sys
 
-sys.path.append("..")
+from owlready2 import *
+
 from tcp_connections.car_utilities.DataCollection import *
 
 DB_ABSOLUTE_PATH = os.getcwd()
