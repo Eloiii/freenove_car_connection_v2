@@ -38,6 +38,10 @@ class StreamingOutput(io.BufferedIOBase):
 
 
 def start_tcp_server(port):
+    """
+    Open a TCP server socket at the given port and bind it to the machine IP
+    Return the server
+    """
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # retrieve IP address linked to the 'wlan0' interface
@@ -160,7 +164,7 @@ class Server:
         """
         When the data_socket is open. This function put the socket in listening mode for a client to connect. When
         the client is connected, the socket wait for it to send a request for the data of the car and send them to
-        him when it request them using pickle serialization.
+        him when it requests them using pickle serialization.
         """
         while True:
             client, client_addr = self.data_socket.accept()

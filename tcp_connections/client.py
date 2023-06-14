@@ -3,24 +3,23 @@ import socket
 import struct
 import cv2
 import numpy as np
+import atexit
 from threading import *
 from command import *
 from car_utilities.camera_data import *
 from database.db import *
+from tcp_connections.car_utilities.DataCollection import *
 
 
 def start_tcp_client(ip, port):
+    """
+    Open a new client socket and try to connect to the given ip and port
+    Return the connection
+    """
     client = socket.socket()
     client.connect((ip, port))
     print(f'Connected to {ip}:{port}')
     return client
-
-
-def init_db():
-    if not os.path.exists('../database/4WD_car_db.sqlite3'):
-        path = os.getcwd() + "/../database"
-        init_database(owlpath="file://" + path + "/4WD_Car_ontology_specific.owl",
-                      sqliet3path=path + "/4WD_car_db.sqlite3")
 
 
 class ClientMeta(type):
@@ -45,7 +44,6 @@ class Client(metaclass=ClientMeta):
         self.video_port = None
         self.server_ip = None
         self.imgbytes = None
-        init_db()
         self.initialised = False
 
     def __new__(cls, *args, **kwargs):
@@ -54,11 +52,12 @@ class Client(metaclass=ClientMeta):
         return cls.instance
 
     def setup(self, ip, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value, data_port=Port.PORT_DATA.value):
+        """
+        Set up the client connection with the server for the command handling and for the data collection
+        """
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
-        self.video_client = None
-        self.last_state = None
         thread_data = Thread(target=self.data_collection, args=(ip, data_port,))
         thread_data.start()
         self.initialised = True
@@ -99,8 +98,10 @@ class Client(metaclass=ClientMeta):
         """
         Open a socket and try to connect to the given IP at the port 5005
         When connected, request for the current state of the car every "timer" value in seconds
+        Add an atexit function to call to close the database
         """
         onto = start_database()
+        atexit.register(stop_database())
         while True:
             self.client_data_socket = start_tcp_client(ip, port)
             try:
@@ -111,6 +112,7 @@ class Client(metaclass=ClientMeta):
                         print("Connexion with server lost...")
                         break
                     data = pickle.loads(serialized_data)
+                    set_data(data, sampl_rate=self.timer)
                     self.last_state = data
                     if self.data_collection_bool:
                         add_car_data_to_db(data=data, onto=onto)

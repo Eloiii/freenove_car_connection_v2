@@ -1,25 +1,40 @@
 import os
-
 from owlready2 import *
+from tcp_connections.car_utilities.DataCollection import Data
 
-from tcp_connections.car_utilities.DataCollection import *
-
-DB_ABSOLUTE_PATH = os.getcwd()
+DB_ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def init_database(owlpath="file://" + DB_ABSOLUTE_PATH + "/4WD_Car_ontology_specific.owl",
-                  sqliet3path= DB_ABSOLUTE_PATH + "/4WD_car_db.sqlite3"):
-    default_world.set_backend(filename=sqliet3path)
-    onto = get_ontology(owlpath).load()
+def init_database():
+    """
+    Create the .slite3 file with the ontology
+    """
+    default_world.set_backend(filename=DB_ABSOLUTE_PATH + "/4WD_car_db.sqlite3", exclusive=False)
+    onto = get_ontology("file://" + DB_ABSOLUTE_PATH + "/4WD_Car_ontology_specific.owl").load()
     print_ontology(onto)
     default_world.save()
+    return onto
 
 
 def start_database():
-    default_world.set_backend(filename="database/4WD_car_db.sqlite3", exclusive=False)
-    onto = default_world.get_ontology(
-        "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology").load()
+    """
+    Set the backend of the current default_world to the .sqlite3 file, if this file doesn't exist create it
+    """
+    if not os.path.exists(DB_ABSOLUTE_PATH+'4WD_car_db.sqlite3'):
+        onto = init_database()
+    else:
+        default_world.set_backend(filename="database/4WD_car_db.sqlite3", exclusive=False)
+        onto = default_world.get_ontology(
+            "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology").load()
     return onto
+
+
+def stop_database():
+    """
+    Save the current state of the ontology in the database and close it, must be called before shutdown
+    """
+    default_world.save()
+    default_world.close()
 
 
 def print_ontology(onto: Ontology):
@@ -38,13 +53,21 @@ def print_ontology(onto: Ontology):
 
 
 def add_car_data_to_db(data: Data, onto: Ontology):
+    """
+    Add the current data object (which represent the state of the car at a given moment) in the ontology
+    If the car doesn't exist create it
+    """
     existing_car = onto.search_one(is_a=onto.car, MAC_address=data.Car_MAC_address)
     if existing_car is None:
-        existing_car = create_4WD_car(onto=onto, MAC=data.Car_MAC_address, IP=data.Car_IP_address)
+        existing_car = create_4WD_car(onto=onto, mac=data.Car_MAC_address, ip=data.Car_IP_address)
     add_measured_data(car=existing_car, onto=onto, data=data)
 
 
 def add_measured_data(car, onto: Ontology, data: Data):
+    """
+    Call the auto_map function for each part and subAssembly of the car
+    Also update the IP address of the car
+    """
     car.IP_address = data.Car_IP_address
     for part in car.hasPart:
         auto_map_part(part, onto=onto, data=data)
@@ -53,6 +76,9 @@ def add_measured_data(car, onto: Ontology, data: Data):
 
 
 def auto_map_sub_assembly(sub, onto: Ontology, data: Data):
+    """
+    Automatically add the right data in the right field of the ontology for each subAssembly
+    """
     if isinstance(sub, onto.led_strip):
         rgb = data.leds_state
         for led in sub.hasPart:
@@ -83,6 +109,9 @@ def auto_map_sub_assembly(sub, onto: Ontology, data: Data):
 
 
 def auto_map_part(part, onto: Ontology, data: Data):
+    """
+    Automatically add the right data in the right field of the ontology for each part
+    """
     new_measure = onto.measure()
     new_measure.timestamp = data.timestamp
     if isinstance(part, onto.battery):
@@ -110,6 +139,10 @@ def auto_map_part(part, onto: Ontology, data: Data):
 
 
 def create_4WD_car(onto: Ontology, mac: str, ip: str):
+    """
+    Create a new car in the ontology
+    Using the model of a 4WD Freenove Car
+    """
     records = onto.records()
     battery = onto.battery()
     cpu = onto.CPU()
