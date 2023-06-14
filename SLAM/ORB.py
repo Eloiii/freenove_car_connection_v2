@@ -49,6 +49,24 @@ def find_matching():
         cv.imwrite(f'./{orb_dir}/{k}-{k+1}.jpg', img3)
 
 
+def slam():
+    orb = cv.ORB_create()
+    bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
+
+    img1 = cv.imread(f'../{images_dir}/0.jpg', cv.IMREAD_GRAYSCALE)
+    pre_points, pre_features = orb.detectAndCompute(img1, None)
+
+    curr_frame_index = 1
+    first_frame = img1
+
+    map_initialised = False
+
+    while not map_initialised:
+        curr_frame = cv.imread(f'../{images_dir}/{curr_frame_index}.jpg', cv.IMREAD_GRAYSCALE)
+
+
+
+
 if __name__ == '__main__':
     dirs = os.listdir('..')
     images_dir = list(filter(lambda directory: directory.startswith('images'), dirs))[0]

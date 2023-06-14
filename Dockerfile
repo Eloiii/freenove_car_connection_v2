@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.9.16
+FROM python:3.11.4
 
 ENV DEBIAN_FRONTEND=noninteractive
 LABEL authors="Lony Riffard, Eloi Charra"

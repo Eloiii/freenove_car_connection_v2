@@ -6,8 +6,8 @@ from threading import *
 import cv2
 import numpy as np
 
-from car_utilities.camera_data import *
-from command import *
+from tcp_connections.car_utilities.camera_data import *
+from tcp_connections.command import *
 
 from database.db import *
 sys.path.append('..')
