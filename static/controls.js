@@ -1,37 +1,53 @@
-const request = new XMLHttpRequest();
-const CAR_IP = '138.250.156.212'
+let CLIENT_INDEX
+
+carIpInput = document.getElementById("car_ip")
+carIpInput.addEventListener('keydown', async e => {
+    if (e.code === 'Enter') {
+        const data = await send(`/connect/${carIpInput.value}`)
+        CLIENT_INDEX = data['client_index']
+    }
+
+})
+
+carIndexInput = document.getElementById("car_index")
+carIndexInput.addEventListener('keydown', async e => {
+    if (e.code === 'Enter') {
+        CLIENT_INDEX = carIndexInput.value
+    }
+
+})
+
 
 const motor_controls = document.querySelectorAll('.direction')
 for (let control of motor_controls) {
-    control.addEventListener('mousedown', e => {
+    control.addEventListener('mousedown', async e => {
         const direction = e.target.classList[0]
         switch (direction) {
             case "forward":
-                send(`/setMotors?ip=${CAR_IP}&value=4000_4000_4000_4000`)
+                await send(`/setMotors?ci=${CLIENT_INDEX}&value=4000_4000_4000_4000`)
                 break
             case "left":
-                send(`/setMotors?ip=${CAR_IP}&value=4000_4000_-4000_-4000`)
+                await send(`/setMotors?ci=${CLIENT_INDEX}&value=4000_4000_-4000_-4000`)
                 break
             case "right":
-                send(`/setMotors?ip=${CAR_IP}&value=-4000_-4000_4000_4000`)
+                await send(`/setMotors?ci=${CLIENT_INDEX}&value=-4000_-4000_4000_4000`)
                 break
             case "backward":
-                send(`/setMotors?ip=${CAR_IP}&value=-4000_-4000_-4000_-4000`)
+                await send(`/setMotors?ci=${CLIENT_INDEX}&value=-4000_-4000_-4000_-4000`)
                 break
         }
-        console.log(direction + ' mousedown')
     })
-    control.addEventListener('mouseup', e => {
-        send(`/setMotors?ip=${CAR_IP}&value=0_0_0_0`)
+    control.addEventListener('mouseup', async e => {
+        await send(`/setMotors?ci=${CLIENT_INDEX}&value=0_0_0_0`)
     })
 }
 
 const buzzer = document.querySelector('.buzzer')
-buzzer.addEventListener('mousedown', () => {
-    send(`/toggleBuzzer?ip=${CAR_IP}&value=0`)
+buzzer.addEventListener('mousedown', async () => {
+    await send(`/toggleBuzzer?ci=${CLIENT_INDEX}&value=0`)
 })
-buzzer.addEventListener('mouseup', () => {
-    send(`/toggleBuzzer?ip=${CAR_IP}&value=1`)
+buzzer.addEventListener('mouseup', async () => {
+    await send(`/toggleBuzzer?ci=${CLIENT_INDEX}&value=1`)
 })
 
 const servos_controls = document.querySelectorAll(".servo")
@@ -40,25 +56,25 @@ let servos_values = [90, 90]
 let servoTimer
 
 for (let control of servos_controls) {
-    control.addEventListener('mousedown', e => {
+    control.addEventListener('mousedown', async e => {
         const direction = e.target.classList[0]
         if (direction === "home") {
-            send(`/setServo?ip=${CAR_IP}&value=0_90`)
-            setTimeout(() => send(`/setServo?ip=${CAR_IP}&value=1_90`), 50)
+            await send(`/setServo?ci=${CLIENT_INDEX}&value=0_90`)
+            setTimeout(async () => await send(`/setServo?ci=${CLIENT_INDEX}&value=1_90`), 50)
         }
-        servoTimer = setInterval(() => {
+        servoTimer = setInterval(async () => {
             switch (direction) {
                 case "forward":
-                    send(`/setServo?ip=${CAR_IP}&value=1_${servos_values[1] += 2}`)
+                    await send(`/setServo?ci=${CLIENT_INDEX}&value=1_${servos_values[1] -= 2}`)
                     break
                 case "left":
-                    send(`/setServo?ip=${CAR_IP}&value=0_${servos_values[0] -= 2}`)
+                    await send(`/setServo?ci=${CLIENT_INDEX}&value=0_${servos_values[0] -= 2}`)
                     break
                 case "right":
-                    send(`/setServo?ip=${CAR_IP}&value=0_${servos_values[0] += 2}`)
+                    await send(`/setServo?ci=${CLIENT_INDEX}&value=0_${servos_values[0] += 2}`)
                     break
                 case "backward":
-                    send(`/setServo?ip=${CAR_IP}&value=1_${servos_values[1] -= 2}`)
+                    await send(`/setServo?ci=${CLIENT_INDEX}&value=1_${servos_values[1] += 2}`)
                     break
 
             }
@@ -73,18 +89,23 @@ for (let control of servos_controls) {
     })
 }
 
-document.addEventListener('keydown', e => {
-    if (e.code === 'Enter') {
-        const target = e.target
-        const rawTxt = target.value
-        const rbgValues = rawTxt.replaceAll(' ', '').replaceAll(',', '_') || '0_0_0'
-        const led = target.id.split('_')[0]
-        send(`/setLED?ip=${CAR_IP}&value=${led}_${rbgValues}`)
-    }
-})
+const ledInputs = document.querySelectorAll(".led")
+
+for (let ledInput of ledInputs) {
+    ledInput.addEventListener('keydown', async e => {
+        if (e.code === 'Enter') {
+            const target = e.target
+            const rawTxt = target.value
+            const rbgValues = rawTxt.replaceAll(' ', '').replaceAll(',', '_') || '0_0_0'
+            const led = target.id.split('_')[0]
+            await send(`/setLED?ci=${CLIENT_INDEX}&value=${led}_${rbgValues}`)
+        }
+    })
+}
 
 
-function send(url) {
-    request.open("GET", url, true)
-    request.send()
+async function send(url) {
+    const response = await fetch(url)
+    const data = response.json()
+    return data
 }
