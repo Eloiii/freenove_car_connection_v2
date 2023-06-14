@@ -97,6 +97,7 @@ def stop_recording():
 
     return 'Recording stopped'
 
+
 @app.route('/data_collection_on')
 def start_data_collection():
     client = Client()
@@ -104,12 +105,14 @@ def start_data_collection():
 
     return 'Data collection started'
 
+
 @app.route('/data_collection_off')
 def stop_data_collection():
     client = Client()
     client.data_collection_bool = False
 
     return 'Data collection stopped'
+
 
 @app.route('/controlUI')
 def control_ui():

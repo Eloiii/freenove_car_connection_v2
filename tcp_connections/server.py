@@ -49,8 +49,6 @@ def start_tcp_server(port):
     server.listen(1)
     return server
 
-def init_db():
-    db.ini
 
 class Server:
 
@@ -177,7 +175,7 @@ class Server:
                                  MAC=get_mac_address(),
                                  IP=None,
                                  battery_voltage=self.adc.recvADC(2) * 3,
-                                 battery_percent=((float(self.adc.recvADC(2)) * 3) - 7) / 1.40 * 100,#int((self.adc.recvADC(2) * 3) - 7) / 1.40 * 100)
+                                 battery_percent=((float(self.adc.recvADC(2)) * 3) - 7) / 1.40 * 100,
                                  isRecording=self.camera_is_recording,
                                  width=self.camera_width,
                                  height=self.camera_heigt,

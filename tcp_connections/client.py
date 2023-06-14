@@ -1,14 +1,11 @@
 import pickle
 import socket
 import struct
-import sys
 from threading import *
 import cv2
 import numpy as np
 from car_utilities.camera_data import *
 from command import *
-
-sys.path.append('..')
 from database.db import *
 
 
