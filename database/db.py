@@ -9,7 +9,7 @@ DB_ABSOLUTE_PATH = os.getcwd()
 
 
 def init_database(owlpath="file://" + DB_ABSOLUTE_PATH + "/4WD_Car_ontology_specific.owl",
-                  sqliet3path=DB_ABSOLUTE_PATH + "/4WD_car_db.sqlite3"):
+                  sqliet3path= DB_ABSOLUTE_PATH + "/4WD_car_db.sqlite3"):
     default_world.set_backend(filename=sqliet3path)
     onto = get_ontology(owlpath).load()
     print_ontology(onto)

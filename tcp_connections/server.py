@@ -49,6 +49,8 @@ def start_tcp_server(port):
     server.listen(1)
     return server
 
+def init_db():
+    db.ini
 
 class Server:
 

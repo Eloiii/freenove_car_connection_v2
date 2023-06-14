@@ -3,10 +3,8 @@ import socket
 import struct
 import sys
 from threading import *
-
 import cv2
 import numpy as np
-
 from car_utilities.camera_data import *
 from command import *
 
@@ -19,6 +17,13 @@ def start_tcp_client(ip, port):
     client.connect((ip, port))
     print(f'Connected to {ip}:{port}')
     return client
+
+
+def init_db():
+    if not os.path.exists('../database/4WD_car_db.sqlite3'):
+        path = os.getcwd() + "/../database"
+        init_database(owlpath="file://" + path + "/4WD_Car_ontology_specific.owl",
+                      sqliet3path=path + "/4WD_car_db.sqlite3")
 
 
 class ClientMeta(type):
@@ -34,6 +39,7 @@ class ClientMeta(type):
 class Client(metaclass=ClientMeta):
 
     def __init__(self):
+        self.client_data_socket = None
         self.last_state = None
         self.data_collection_bool = False
         self.timer = 1
@@ -42,8 +48,8 @@ class Client(metaclass=ClientMeta):
         self.video_port = None
         self.server_ip = None
         self.imgbytes = None
+        init_db()
         self.initialised = False
-
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, 'instance'):
@@ -56,7 +62,6 @@ class Client(metaclass=ClientMeta):
         self.client = start_tcp_client(ip, port)
         self.video_client = None
         self.last_state = None
-
         thread_data = Thread(target=self.data_collection, args=(ip, data_port,))
         thread_data.start()
         self.initialised = True
@@ -73,7 +78,6 @@ class Client(metaclass=ClientMeta):
 
     def start_recording(self):
         n_img = 0
-        stream_bytes = b' '
         directory = str(datetime.now())
         os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
