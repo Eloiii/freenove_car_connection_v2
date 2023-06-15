@@ -7,6 +7,15 @@ app = Flask(__name__)
 clients = []
 
 
+async def send_msg_and_receive_state(command):
+    client_index = int(request.args.get('ci'))
+    client = clients[client_index - 1]
+    client.send_msg(command)
+
+    data = await client.get_last_state()
+    return data
+
+
 @app.route('/')
 def index():
     return render_template('choices.html')
@@ -15,15 +24,6 @@ def index():
 @app.errorhandler(500)
 def internal_server_error(error):
     return render_template('internal_server_error.html', error=error), 500
-
-
-async def send_msg_and_receive_state(command):
-    client_index = int(request.args.get('ci'))
-    client = clients[client_index - 1]
-    client.send_msg(command)
-
-    data = await client.get_last_state()
-    return data
 
 
 @app.route('/connect/<string:ip>')

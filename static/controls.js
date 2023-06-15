@@ -1,20 +1,21 @@
 let CLIENT_INDEX
 
+connectionDiv = document.getElementById("connection")
 carIpInput = document.getElementById("car_ip")
+
 carIpInput.addEventListener('keydown', async e => {
     if (e.code === 'Enter') {
         const data = await send(`/connect/${carIpInput.value}`)
         CLIENT_INDEX = data['client_index']
+        connectionDiv.style.color = 'green'
     }
-
 })
-
 carIndexInput = document.getElementById("car_index")
 carIndexInput.addEventListener('keydown', async e => {
     if (e.code === 'Enter') {
         CLIENT_INDEX = carIndexInput.value
+        connectionDiv.style.color = 'green'
     }
-
 })
 
 

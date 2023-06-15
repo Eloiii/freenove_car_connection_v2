@@ -43,8 +43,8 @@ class Client:
         self.data_collection_bool = False
         self.timer = 1
         self.imgbytes = None
-        thread_data = Thread(target=self.data_collection, args=(ip, data_port,))
-        thread_data.start()
+        # thread_data = Thread(target=self.data_collection, args=(ip, data_port,))
+        # thread_data.start()
         self.initialised = True
 
     def connect_to_video_server(self, framerate, width, height):
@@ -86,7 +86,7 @@ class Client:
         Add an atexit function to call to close the database
         """
         onto = start_database()
-        atexit.register(stop_database())
+        atexit.register(stop_database)
         while True:
             self.client_data_socket = start_tcp_client(ip, port)
             try:
