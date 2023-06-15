@@ -101,7 +101,7 @@ class Client(metaclass=ClientMeta):
         Add an atexit function to call to close the database
         """
         onto = start_database()
-        atexit.register(stop_database())
+        atexit.register(stop_database)
         while True:
             self.client_data_socket = start_tcp_client(ip, port)
             try:

@@ -6,19 +6,18 @@ GPIO.setwarnings(False)
 Buzzer_Pin = 17
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(Buzzer_Pin, GPIO.OUT)
-State = False
 
 
 class Buzzer:
+    def __init__(self):
+        self.state = None
+
     def run(self, command):
-        if command != "0":
-            State = False
-        else:
-            State = True
+        self.state = command
         GPIO.output(Buzzer_Pin, State)
 
     def isOn(self):
-        return State
+        return self.state
 
 
 if __name__ == '__main__':
