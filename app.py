@@ -28,6 +28,12 @@ async def send_msg_and_receive_state(command):
 
 @app.route('/connect/<string:ip>')
 async def connect(ip):
+    for client_registered in clients:
+        if ip == client_registered.server_ip:
+            return jsonify({
+                "message": "Connection already established",
+                "client_index": clients.index(client_registered) + 1
+            })
     try:
         client = Client(ip)
         clients.append(client)
