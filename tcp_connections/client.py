@@ -1,15 +1,21 @@
 import pickle
 import socket
 import struct
-from threading import *
 import cv2
 import numpy as np
-from car_utilities.camera_data import *
+import atexit
+from threading import *
 from command import *
+from car_utilities.camera_data import *
 from database.db import *
+from tcp_connections.car_utilities.DataCollection import *
 
 
 def start_tcp_client(ip, port):
+    """
+    Open a new client socket and try to connect to the given ip and port
+    Return the connection
+    """
     client = socket.socket()
     client.connect((ip, port))
     print(f'Connected to {ip}:{port}')
@@ -77,8 +83,10 @@ class Client:
         """
         Open a socket and try to connect to the given IP at the port 5005
         When connected, request for the current state of the car every "timer" value in seconds
+        Add an atexit function to call to close the database
         """
         onto = start_database()
+        atexit.register(stop_database())
         while True:
             self.client_data_socket = start_tcp_client(ip, port)
             try:
@@ -89,6 +97,7 @@ class Client:
                         print("Connexion with server lost...")
                         break
                     data = pickle.loads(serialized_data)
+                    set_data(data, sampl_rate=self.timer)
                     self.last_state = data
                     if self.data_collection_bool:
                         add_car_data_to_db(data=data, onto=onto)
