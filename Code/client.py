@@ -2,10 +2,10 @@ import atexit
 import pickle
 import socket
 import struct
-
 import cv2
 import numpy as np
 
+from threading import *
 from .data.Data import *
 from .data.Database import *
 from .enumerate import *
@@ -13,7 +13,7 @@ from .enumerate import *
 
 def threading(func):
     def wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread = Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
     return wrapper
 

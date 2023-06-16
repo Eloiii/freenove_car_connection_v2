@@ -22,7 +22,7 @@ from .enumerate import *
 
 def threading(func):
     def wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread = Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
 
     return wrapper
@@ -72,24 +72,24 @@ class Server:
         self.adc = Adc()
         self.data = Data()
         self.sonic = False
+        self.camera_is_recording = False
+        self.camera_height = 300
+        self.camera_width = 400
+        self.camera_framerate = 25
 
         self.server = start_tcp_server(port)
         print(f"Command server up, listening on {port}")
 
-        self.data_socket = start_tcp_server(data_port)
+        self.data_server = start_tcp_server(data_port)
         print(f"data server up, listening on {data_port}")
 
         self.video_server = start_tcp_server(video_port)
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print(f"Video server up, listening on {video_port}")
 
+        # Set up all the daemon threads
         self.data_collection()
         self.waiting_for_connection()
-
-        self.camera_is_recording = False
-        self.camera_height = 300
-        self.camera_width = 400
-        self.camera_framerate = 25
         self.waiting_for_camera_connection()
 
     @threading
@@ -169,12 +169,12 @@ class Server:
     @threading
     def data_collection(self):
         """
-        When the data_socket is open. This function put the socket in listening mode for a client to connect. When
+        When the data_server is open. This function put the socket in listening mode for a client to connect. When
         the client is connected, the socket wait for it to send a request for the data of the car and send them to
         him when it requests them using pickle serialization.
         """
         while True:
-            client, client_addr = self.data_socket.accept()
+            client, client_addr = self.data_server.accept()
             while True:
                 try:
                     data = client.recv(1024).decode('utf-8')
@@ -230,7 +230,7 @@ class Server:
                 # led 0x01_255_255_255
                 self.activate_led(split_msg[1])
             elif cmd == Command.CMD_SONIC.value:
-                # sonic
+                # sonic TODO
                 self.send_ultrasonic()
             elif cmd == Command.CMD_BUZZER.value:
                 # buzzer 1
