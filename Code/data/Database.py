@@ -2,8 +2,8 @@ from owlready2 import *
 from .Data import Data
 
 DB_ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__))
-OWLFILE = "/4WD_Car_ontology_specific.owl"
-OWLIRI = "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology"
+OWLFILE = "/4WD_Car_ontology_specific.owl/"
+OWLIRI = "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology/"
 SQLITE3FILE = "/4WD_car_db.sqlite3"
 
 
@@ -24,11 +24,10 @@ def start_database():
     Return the ontology
     """
     if not os.path.exists(DB_ABSOLUTE_PATH+SQLITE3FILE):
-        onto = init_database()
+        return init_database()
     else:
         default_world.set_backend(filename=DB_ABSOLUTE_PATH + SQLITE3FILE, exclusive=False)
-        onto = default_world.get_ontology(OWLIRI).load()
-    return onto
+        return default_world.get_ontology(OWLIRI).load()
 
 
 def stop_database():
