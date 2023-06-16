@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, jsonify, Response
-from tcp_connections.client import *
+from Code.client import *
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -103,7 +103,7 @@ def start_data_collection():
     client = Client()
     client.data_collection_bool = True
 
-    return 'Data collection started'
+    return 'data collection started'
 
 
 @app.route('/data_collection_off')
@@ -111,7 +111,7 @@ def stop_data_collection():
     client = Client()
     client.data_collection_bool = False
 
-    return 'Data collection stopped'
+    return 'data collection stopped'
 
 
 @app.route('/controlUI')
