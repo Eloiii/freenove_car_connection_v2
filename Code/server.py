@@ -20,6 +20,14 @@ from .data.Data import *
 from .enumerate import *
 
 
+def threading(func):
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+
+    return wrapper
+
+
 def get_mac_address():
     mac = uuid.getnode()
     mac_address = ':'.join(("%012X" % mac)[i:i + 2] for i in range(0, 12, 2))
@@ -75,29 +83,27 @@ class Server:
         self.video_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print(f"Video server up, listening on {video_port}")
 
-        data_thread = Thread(target=self.data_collection)
-        data_thread.start()
-        thread = Thread(target=self.waiting_for_connection)
-        thread.start()
+        self.data_collection()
+        self.waiting_for_connection()
 
         self.camera_is_recording = False
-        self.camera_heigt = 300
+        self.camera_height = 300
         self.camera_width = 400
         self.camera_framerate = 25
-        thread_camera = Thread(target=self.waiting_for_camera_connection)
-        thread_camera.start()
+        self.waiting_for_camera_connection()
 
+    @threading
     def waiting_for_connection(self):
         while True:
             client, client_addr = self.server.accept()
             print("New connection from ", client_addr)
-            thread = Thread(target=self.receive_data, args=(client, client_addr))
-            thread.start()
+            self.receive_data(client, client_addr)
 
     def close_server(self):
         self.server.shutdown(socket.SHUT_RDWR)
         self.server.close()
 
+    @threading
     def receive_data(self, client, client_addr):
         while True:
             data = client.recv(1024).decode('utf-8')
@@ -115,6 +121,7 @@ class Server:
         client.close()
         print(f'Client {client_addr} disconnected')
 
+    @threading
     def waiting_for_camera_connection(self):
         while True:
             connection, client_address = self.video_server.accept()
@@ -124,10 +131,9 @@ class Server:
 
             connection = connection.makefile('wb')
 
-            thread = Thread(target=self.record_and_send_video,
-                            args=(connection, camera_data.framerate, camera_data.width, camera_data.height))
-            thread.start()
+            self.record_and_send_video(connection, camera_data.framerate, camera_data.width, camera_data.height)
 
+    @threading
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
 
         if framerate is not None:
@@ -135,10 +141,10 @@ class Server:
         if resolution_width is not None:
             self.camera_width = int(resolution_width)
         if resolution_height is not None:
-            self.camera_heigt = int(resolution_height)
+            self.camera_height = int(resolution_height)
 
         camera = Picamera2()
-        camera.configure(camera.create_video_configuration(main={"size": (self.camera_width, self.camera_heigt)}))
+        camera.configure(camera.create_video_configuration(main={"size": (self.camera_width, self.camera_height)}))
         output = StreamingOutput()
         encoder = MJPEGEncoder(10000000)
         camera.start_recording(encoder, FileOutput(output), quality=Quality.VERY_HIGH)
@@ -160,6 +166,7 @@ class Server:
                 break
             time.sleep(1 / self.camera_framerate)
 
+    @threading
     def data_collection(self):
         """
         When the data_socket is open. This function put the socket in listening mode for a client to connect. When
@@ -182,7 +189,7 @@ class Server:
                                  battery_percent=((self.adc.recvADC(2) * 3) - 7) / 1.40 * 100,
                                  isRecording=self.camera_is_recording,
                                  width=self.camera_width,
-                                 height=self.camera_heigt,
+                                 height=self.camera_height,
                                  FPS=self.camera_framerate,
                                  CPU=psutil.cpu_percent(),
                                  nb_process=len(list(psutil.process_iter())),

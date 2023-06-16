@@ -1,14 +1,21 @@
+import atexit
 import pickle
 import socket
 import struct
+
 import cv2
 import numpy as np
-import atexit
-from threading import *
 
-from .enumerate import *
-from .data.Database import *
 from .data.Data import *
+from .data.Database import *
+from .enumerate import *
+
+
+def threading(func):
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+    return wrapper
 
 
 def start_tcp_client(ip, port):
@@ -58,8 +65,7 @@ class Client(metaclass=ClientMeta):
         self.server_ip = ip
         self.video_port = video_port
         self.client = start_tcp_client(ip, port)
-        thread_data = Thread(target=self.data_collection, args=(ip, data_port,))
-        thread_data.start()
+        self.data_collection(ip, data_port)
         self.initialised = True
 
     def connect_to_video_server(self, framerate, width, height):
@@ -67,9 +73,9 @@ class Client(metaclass=ClientMeta):
         camera_data = CameraData()
         set_camera_data(camera_data, framerate=framerate, width=width, height=height)
         self.video_client.send(pickle.dumps(camera_data))
-        thread_video = Thread(target=self.start_recording)
-        thread_video.start()
+        self.start_recording()
 
+    @threading
     def start_recording(self):
         n_img = 0
         directory = str(datetime.now())
@@ -92,6 +98,7 @@ class Client(metaclass=ClientMeta):
                     cv2.destroyAllWindows()
                     break
 
+    @threading
     def data_collection(self, ip, port):
         """
         Open a socket and try to connect to the given IP at the port 5005
