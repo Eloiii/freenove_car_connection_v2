@@ -14,6 +14,10 @@ class Buzzer:
 
     def run(self, command):
         self.state = command
+        if command != "0":
+            State = False
+        else:
+            State = True
         GPIO.output(Buzzer_Pin, State)
 
     def isOn(self):

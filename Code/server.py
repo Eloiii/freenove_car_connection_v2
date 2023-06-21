@@ -16,8 +16,8 @@ from car_utilities.Buzzer import *
 from car_utilities.Led import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
-from .data.Data import *
-from .enumerate import *
+from data.Data import *
+from enumerate import Command, Port
 
 
 def threading(func):
@@ -97,7 +97,11 @@ class Server:
         while True:
             client, client_addr = self.server.accept()
             print("New connection from ", client_addr)
-            self.receive_data(client, client_addr)
+            try:
+                self.receive_data(client, client_addr)
+            except:
+                break
+        self.close_server()
 
     def close_server(self):
         self.server.shutdown(socket.SHUT_RDWR)
@@ -107,7 +111,6 @@ class Server:
     def receive_data(self, client, client_addr):
         while True:
             data = client.recv(1024).decode('utf-8')
-            print(data)
             if not data:
                 break
             else:
@@ -240,8 +243,9 @@ class Server:
                 pass
             else:
                 print(f'Error, unknown command {cmd}')
-        except:
-            print('wrong message format received')
+        except Exception as e:
+            print(f'An error has occured while processing the command {cmd}')
+            print(e)
             return
 
     def activate_motor(self, param):
