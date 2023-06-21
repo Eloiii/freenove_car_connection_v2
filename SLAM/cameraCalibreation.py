@@ -38,7 +38,7 @@ def Calibrate():
             img_points.append(corners)
 
             # Draw the corners
-            drawn_img = cv2.drawChessboardCorners(img, (7, 7), corners, ret)
+            # drawn_img = cv2.drawChessboardCorners(img, (7, 7), corners, ret)
             # Uncomment the below code (43-47) if you want to visualize the detected corners
             # drawn_img = cv2.resize(drawn_img, (500,500))
             # cv2.namedWindow("main", cv2.WINDOW_NORMAL)

@@ -1,10 +1,8 @@
 import os
 
 import cv2 as cv
-import numpy as np
-
-from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def draw_kp(img):
@@ -85,22 +83,41 @@ def triangulate(pose1, pose2, pts1, pts2):
     return ret
 
 
-def slam():
+def draw_points(points, img, name):
+    image = img
+    for point in points:
+        center = (int(point[0]), int(point[1]))
+        image = cv.circle(image, center, radius=1, color=(0, 255, 255), thickness=3)
+
+    cv.imwrite(name, image)
+
+
+K = np.matrix(
+            [[692.1783869, 0., 353.07150929], [0., 704.4016042, 178.98211959], [0., 0., 1.]]).A
+dist = np.array([[0.12111298, 0.26876559, -0.04746641, -0.00175447, -1.04781593]])
+
+
+def slam(n_images):
     orb = cv.ORB_create()
     bf = cv.BFMatcher(cv.NORM_HAMMING)
 
     img1 = cv.imread(f'../{images_dir}/0.jpg', cv.IMREAD_GRAYSCALE)
+
     pre_points, pre_features = orb.detectAndCompute(img1, None)
 
     curr_frame_index = 1
     first_frame = img1
 
     map_initialised = False
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
 
-    for k in range(100):
+    xpoints = np.array([])
+    ypoints = np.array([])
+    zpoints = np.array([])
+
+    for k in range(n_images):
         curr_frame = cv.imread(f'../{images_dir}/{curr_frame_index}.jpg', cv.IMREAD_GRAYSCALE)
+        # image_kp = draw_kp(curr_frame)
+        # cv.imwrite('image_kp.jpg', image_kp)
         curr_points, curr_features = orb.detectAndCompute(curr_frame, None)
 
         curr_frame_index += 1
@@ -117,42 +134,65 @@ def slam():
 
         pre_matched_points = np.array(pre_matched_points)
         curr_matched_points = np.array(curr_matched_points)
-        # tform, inlier_tform_idx = cv.findHomography(pre_matched_points, curr_matched_points, method=cv.RANSAC)
 
-        F, mask = cv.findFundamentalMat(pre_matched_points, curr_matched_points, method=cv.FM_LMEDS)
+        # draw_points(curr_matched_points, cv.imread(f'../{images_dir}/{curr_frame_index}.jpg', cv.IMREAD_GRAYSCALE),
+        #             'matchedpoints.jpg')
+
+        F, mask = cv.findFundamentalMat(pre_matched_points, curr_matched_points, method=cv.RANSAC)
 
         inlier_pre_points = pre_matched_points[mask.ravel() == 1]
         inlier_curr_points = curr_matched_points[mask.ravel() == 1]
 
-        E, _ = cv.findEssentialMat(inlier_pre_points, inlier_curr_points)
+        pre_pts_norm = cv.undistortPoints(inlier_pre_points, K, None)
+        curr_pts_norm = cv.undistortPoints(inlier_curr_points, K, None)
+
+        # draw_points(inlier_curr_points, cv.imread(f'../{images_dir}/{curr_frame_index}.jpg', cv.IMREAD_GRAYSCALE),
+        #             'inlierpoints.jpg')
+
+        E, _ = cv.findEssentialMat(pre_pts_norm, curr_pts_norm, K, method=cv.RANSAC, prob=0.999, threshold=3.0)
 
         _, R, t, _ = cv.recoverPose(E, inlier_pre_points, inlier_curr_points)
 
-        K = np.matrix(
-            [[692.1783869, 0., 353.07150929], [0., 704.4016042, 178.98211959], [0., 0., 1.]]).A
-        dist = np.array([[0.12111298, 0.26876559, -0.04746641, -0.00175447, -1.04781593]])
 
-        pre_pts_norm = cv.undistortPoints(inlier_pre_points, K, dist)
-        curr_pts_norm = cv.undistortPoints(inlier_curr_points, K, dist)
 
-        P1 = np.hstack((K, np.zeros((3, 1))))
-        P2 = np.hstack((np.dot(K, R), np.dot(K, t)))
+        # img_undistort = cv.undistort(curr_frame, K, dist, None, K)
+        # cv.imwrite('undistort.jpg', img_undistort)
+        # cv.imwrite('base.jpg', curr_frame)
 
-        points_4d_homogeneous = cv.triangulatePoints(P1, P2, pre_pts_norm, curr_pts_norm)
 
-        points_3d = cv.convertPointsFromHomogeneous(points_4d_homogeneous.T)
+        # P1 = np.hstack((K, np.zeros((3, 1))))
+        # P2 = np.hstack((np.dot(K, R), np.dot(K, t)))
+        #
+        # points_4d_homogeneous = cv.triangulatePoints(P1, P2, pre_pts_norm, curr_pts_norm)
+        #
+        # points_3d = cv.convertPointsFromHomogeneous(points_4d_homogeneous.T)
 
-        camera_location = -np.dot(R.T, t)
+        # camera_location = -np.dot(R.T, t)
 
-        ax.scatter(points_3d[:, 0, 0], points_3d[:, 0, 1], points_3d[:, 0, 2], c='b', marker='o')
+        M_r = np.hstack((R, t))
+        M_l = np.hstack((np.eye(3, 3), np.zeros((3, 1))))
+
+        P_l = np.dot(K, M_l)
+        P_r = np.dot(K, M_r)
+        point_4d_hom = cv.triangulatePoints(P_l, P_r, np.expand_dims(inlier_pre_points, axis=1), np.expand_dims(inlier_curr_points, axis=1))
+        # point_4d = point_4d_hom / np.tile(point_4d_hom[-1, :], (4, 1))
+        # points_3d = point_4d[:3, :].T
+
+        points_3d = cv.convertPointsFromHomogeneous(point_4d_hom.T)
+
+        xpoints = np.append(xpoints, points_3d[:, 0, 0])
+        ypoints = np.append(ypoints, points_3d[:, 0, 1])
+        zpoints = np.append(zpoints, points_3d[:, 0, 2])
+
+        # xpoints = np.append(xpoints, points_3d[:, 0])
+        # ypoints = np.append(ypoints, points_3d[:, 1])
+        # zpoints = np.append(zpoints, points_3d[:, 2])
+
         # ax.scatter3D(camera_location[0], camera_location[1], camera_location[2], c=camera_location[2], cmap='Blues')
 
         # map_initialised = True
 
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    plt.show()
+    return xpoints, ypoints, zpoints
 
 
 if __name__ == '__main__':
@@ -164,4 +204,6 @@ if __name__ == '__main__':
 
     # find_matching()
 
-    slam()
+    xpoints, ypoints, zpoints = slam(50)
+    print('o')
+
