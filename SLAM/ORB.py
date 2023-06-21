@@ -99,7 +99,7 @@ def slam():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    for k in range(10):
+    for k in range(100):
         curr_frame = cv.imread(f'../{images_dir}/{curr_frame_index}.jpg', cv.IMREAD_GRAYSCALE)
         curr_points, curr_features = orb.detectAndCompute(curr_frame, None)
 
@@ -129,9 +129,8 @@ def slam():
         _, R, t, _ = cv.recoverPose(E, inlier_pre_points, inlier_curr_points)
 
         K = np.matrix(
-            [[2.55072497e+03, 0.00000000e+00, 1.68091902e+03], [0.00000000e+00, 2.54174871e+03, 1.24377045e+03],
-             [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]]).A
-        dist = np.array([[0.15913461, -0.06612768, -0.00569621, 0.01171116, -0.50291283]])
+            [[692.1783869, 0., 353.07150929], [0., 704.4016042, 178.98211959], [0., 0., 1.]]).A
+        dist = np.array([[0.12111298, 0.26876559, -0.04746641, -0.00175447, -1.04781593]])
 
         pre_pts_norm = cv.undistortPoints(inlier_pre_points, K, dist)
         curr_pts_norm = cv.undistortPoints(inlier_curr_points, K, dist)
