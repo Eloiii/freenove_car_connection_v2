@@ -16,8 +16,8 @@ from car_utilities.Buzzer import *
 from car_utilities.Led import *
 from car_utilities.Light import *
 from car_utilities.Ultrasonic import *
-from data.Data import *
-from enumerate import *
+from Code.data.Data import *
+from Code.enumerate import *
 
 
 def class_threading(func):

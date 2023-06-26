@@ -6,9 +6,8 @@ import cv2
 import numpy as np
 
 from threading import *
-from .data.Data import *
-from .data.Database import *
-from .enumerate import *
+from Code.data.Database import *
+from Code.enumerate import *
 
 
 def class_threading(func):
