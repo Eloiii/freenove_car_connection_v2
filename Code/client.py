@@ -4,11 +4,11 @@ import socket
 import struct
 import cv2
 import numpy as np
-
-from Code.data.Data import *
-from Code.data.Database import *
 from threading import *
-from Code.enumerate import *
+
+from data.transfer import *
+from data.Database import *
+from enumerate import *
 
 
 def class_threading(func):
