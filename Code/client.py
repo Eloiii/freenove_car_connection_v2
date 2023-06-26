@@ -111,6 +111,7 @@ class Client(metaclass=ClientMeta):
             self.client_data_socket = start_tcp_client(ip, port)
             try:
                 while True:
+                    print("ouiiiiii")
                     self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
                     serialized_data = self.client_data_socket.recv(1024)
                     if not serialized_data:
@@ -123,6 +124,7 @@ class Client(metaclass=ClientMeta):
                         add_car_data_to_db(data=data, onto=onto)
                         default_world.save()
                     print_data(self.last_state)
+                    print("tick")
                     time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
