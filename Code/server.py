@@ -20,9 +20,9 @@ from .data.Data import *
 from .enumerate import *
 
 
-def threading(func):
-    def wrapper(*args, **kwargs):
-        thread = Thread(target=func, args=args, kwargs=kwargs)
+def class_threading(func):
+    def wrapper(self, *args, **kwargs):
+        thread = Thread(target=func, args=(func, args,), kwargs=kwargs)
         thread.start()
 
     return wrapper
@@ -92,7 +92,7 @@ class Server:
         self.waiting_for_connection()
         self.waiting_for_camera_connection()
 
-    @threading
+    @class_threading
     def waiting_for_connection(self):
         while True:
             client, client_addr = self.server.accept()
@@ -103,7 +103,7 @@ class Server:
         self.server.shutdown(socket.SHUT_RDWR)
         self.server.close()
 
-    @threading
+    @class_threading
     def receive_data(self, client, client_addr):
         while True:
             data = client.recv(1024).decode('utf-8')
@@ -121,7 +121,7 @@ class Server:
         client.close()
         print(f'Client {client_addr} disconnected')
 
-    @threading
+    @class_threading
     def waiting_for_camera_connection(self):
         while True:
             connection, client_address = self.video_server.accept()
@@ -133,7 +133,7 @@ class Server:
 
             self.record_and_send_video(connection, camera_data.framerate, camera_data.width, camera_data.height)
 
-    @threading
+    @class_threading
     def record_and_send_video(self, connection, framerate, resolution_width, resolution_height):
 
         if framerate is not None:
@@ -166,7 +166,7 @@ class Server:
                 break
             time.sleep(1 / self.camera_framerate)
 
-    @threading
+    @class_threading
     def data_collection(self):
         """
         When the data_server is open. This function put the socket in listening mode for a client to connect. When

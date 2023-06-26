@@ -11,9 +11,9 @@ from .data.Database import *
 from .enumerate import *
 
 
-def threading(func):
-    def wrapper(*args, **kwargs):
-        thread = Thread(target=func, args=args, kwargs=kwargs)
+def class_threading(func):
+    def wrapper(self, *args, **kwargs):
+        thread = Thread(target=func, args=(self, args,), kwargs=kwargs)
         thread.start()
     return wrapper
 
@@ -75,7 +75,7 @@ class Client(metaclass=ClientMeta):
         self.video_client.send(pickle.dumps(camera_data))
         self.start_recording()
 
-    @threading
+    @class_threading
     def start_recording(self):
         n_img = 0
         directory = str(datetime.now())
@@ -98,7 +98,7 @@ class Client(metaclass=ClientMeta):
                     cv2.destroyAllWindows()
                     break
 
-    @threading
+    @class_threading
     def data_collection(self, ip, port):
         """
         Open a socket and try to connect to the given IP at the port 5005
