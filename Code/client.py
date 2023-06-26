@@ -13,7 +13,7 @@ from .enumerate import *
 
 def class_threading(func):
     def wrapper(self, *args, **kwargs):
-        thread = Thread(target=func, args=(self, args,), kwargs=kwargs)
+        thread = Thread(target=func, args=(self, *args,), kwargs=kwargs)
         thread.start()
     return wrapper
 
