@@ -1,5 +1,5 @@
 from owlready2 import *
-from Data import *
+from .Data import Data
 
 DB_ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__))
 OWLFILE = "/4WD_Car_ontology_specific.owl/"

@@ -5,9 +5,10 @@ import struct
 import cv2
 import numpy as np
 
+from Code.data.Data import *
+from Code.data.Database import *
 from threading import *
-from data.Database import *
-from enumerate import *
+from Code.enumerate import *
 
 
 def class_threading(func):
@@ -69,15 +70,15 @@ class Client(metaclass=ClientMeta):
 
     def connect_to_video_server(self, framerate, width, height):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
-        camera_data = CameraData()
-        set_camera_data(camera_data, framerate=framerate, width=width, height=height)
+        camera_data = d.Data.CameraData()
+        d.Data.set_camera_data(camera_data, framerate=framerate, width=width, height=height)
         self.video_client.send(pickle.dumps(camera_data))
         self.start_recording()
 
     @class_threading
     def start_recording(self):
         n_img = 0
-        directory = str(datetime.now())
+        directory = str(d.datetime.now())
         os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
@@ -104,6 +105,7 @@ class Client(metaclass=ClientMeta):
         When connected, request for the current state of the car every "timer" value in seconds
         Add an atexit function to call to close the data
         """
+
         onto = start_database()
         atexit.register(stop_database)
         while True:
@@ -111,7 +113,9 @@ class Client(metaclass=ClientMeta):
             try:
                 while True:
                     self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
+                    print("test")
                     serialized_data = self.client_data_socket.recv(1024)
+                    print(serialized_data)
                     if not serialized_data:
                         print("Connexion with server lost...")
                         break
@@ -123,11 +127,11 @@ class Client(metaclass=ClientMeta):
                         default_world.save()
                     print_data(self.last_state)
                     print("tick")
-                    time.sleep(self.timer)
+                    datetime.time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
                 print("Trying to reconnect in 5 seconds...")
-                time.sleep(5)
+                datetime.time.sleep(5)
                 continue
 
     def send_msg(self, data):
@@ -158,4 +162,5 @@ class Client(metaclass=ClientMeta):
 
 if __name__ == '__main__':
     client_ui = Client()
-    client_ui.setup(sys.argv[1])
+    client_ui.setup("138.250.151.95")
+    #client_ui.setup(sys.argv[1])
