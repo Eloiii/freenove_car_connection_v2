@@ -6,8 +6,8 @@ import cv2
 import numpy as np
 
 from threading import *
-from Code.data.Database import *
-from Code.enumerate import *
+from data.Database import *
+from enumerate import *
 
 
 def class_threading(func):
@@ -110,7 +110,6 @@ class Client(metaclass=ClientMeta):
             self.client_data_socket = start_tcp_client(ip, port)
             try:
                 while True:
-                    print("ouiiiiii")
                     self.client_data_socket.send(Command.CMD_DATA.value.encode("utf-8"))
                     serialized_data = self.client_data_socket.recv(1024)
                     if not serialized_data:
