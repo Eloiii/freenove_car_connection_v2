@@ -5,16 +5,16 @@ import struct
 import cv2
 import numpy as np
 from threading import *
-
-from data.transfer import *
-from data.Database import *
-from enumerate import *
+from .enumerate import *
+from .data.packet import *
+from .data.database import *
 
 
 def class_threading(func):
     def wrapper(self, *args, **kwargs):
         thread = Thread(target=func, args=(self, *args,), kwargs=kwargs)
         thread.start()
+
     return wrapper
 
 
@@ -163,4 +163,4 @@ class Client(metaclass=ClientMeta):
 if __name__ == '__main__':
     client_ui = Client()
     client_ui.setup("138.250.151.95")
-    #client_ui.setup(sys.argv[1])
+    # client_ui.setup(sys.argv[1])
