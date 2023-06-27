@@ -127,11 +127,11 @@ class Client(metaclass=ClientMeta):
                         default_world.save()
                     print_data(self.last_state)
                     print("tick")
-                    datetime.time.sleep(self.timer)
+                    time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
                 print("Trying to reconnect in 5 seconds...")
-                datetime.time.sleep(5)
+                time.sleep(5)
                 continue
 
     def send_msg(self, data):
