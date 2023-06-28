@@ -65,7 +65,7 @@ def start_tcp_server(port):
 class Server:
 
     def __init__(self, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value, data_port=Port.PORT_DATA.value):
-        self.motor_manager = Motor()
+        self.motor_manager = PWM
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
