@@ -2,7 +2,7 @@ from owlready2 import *
 from .packet import Data
 
 DB_ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__))
-OWLFILE = "/4WD_Car_ontology_specific.owl/"
+OWLFILE = "/4WD_Car_ontology_specific.owl"
 OWLIRI = "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology/#"
 SQLITE3FILE = "/4WD_car_db.sqlite3"
 
