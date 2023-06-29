@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 
-from car_utilities.Motor import *
+from .Motor import *
 
 
 class Line_Tracking:
@@ -12,9 +12,14 @@ class Line_Tracking:
         GPIO.setup(self.IR01, GPIO.IN)
         GPIO.setup(self.IR02, GPIO.IN)
         GPIO.setup(self.IR03, GPIO.IN)
+        self.running = False
+
+    def stop(self):
+        self.running = False
 
     def run(self):
-        while True:
+        self.running = True
+        while self.running:
             self.LMR = 0x00
             if GPIO.input(self.IR01) == True:
                 self.LMR = (self.LMR | 4)
@@ -35,13 +40,3 @@ class Line_Tracking:
             elif self.LMR == 7:
                 # pass
                 PWM.setMotorModel(0, 0, 0, 0)
-
-
-infrared = Line_Tracking()
-# Main program logic follows:
-if __name__ == '__main__':
-    print('Program is starting ... ')
-    try:
-        infrared.run()
-    except KeyboardInterrupt:  # When 'Ctrl+C' is pressed, the child program  will be  executed.
-        PWM.setMotorModel(0, 0, 0, 0)
