@@ -1,5 +1,5 @@
 const request = new XMLHttpRequest();
-const CAR_IP = '138.250.151.42'
+const CAR_IP = '138.250.151.40'
 
 const motor_controls = document.querySelectorAll('.direction')
 for (let control of motor_controls) {
