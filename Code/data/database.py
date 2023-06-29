@@ -30,7 +30,8 @@ def start_database():
             print("The database has been closed without calling stop_database, some changes may has been lost")
             os.remove(DB_ABSOLUTE_PATH + SQLITE3FILE + "-journal")
         default_world.set_backend(filename=DB_ABSOLUTE_PATH + SQLITE3FILE, exclusive=False)
-        return default_world.get_ontology(DB_ABSOLUTE_PATH+OWLFILE).load()
+        onto_path.appedn(DB_ABSOLUTE_PATH)
+        return get_ontology(OWLFILE).load()
 
 
 def stop_database():
