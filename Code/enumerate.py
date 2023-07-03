@@ -9,6 +9,8 @@ class Command(Enum):
     CMD_BUZZER = 'buzzer'
     CMD_LIGHT = 'light'
     CMD_DATA = 'data'
+    CMD_LINE_TRACKING = 'linetracking'
+    CMD_STOP_LINE_TRACKING = 'stoplinetracking'
 
 
 class Port(Enum):

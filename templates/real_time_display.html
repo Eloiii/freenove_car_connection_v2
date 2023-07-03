@@ -1,0 +1,23 @@
+<script>
+    function updateJSON() {
+        $.ajax({
+            url: '/realTimeDisplayPing',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // Effacer le contenu précédent
+                $('#json-container').empty();
+
+                // Générer dynamiquement le contenu HTML pour chaque champ du JSON
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        var value = data[key];
+                        var fieldHtml = '<div><strong>' + key + ':</strong> ' + value + '</div>';
+                        $('#json-container').append(fieldHtml);
+                    }
+                }
+            }
+        });
+    }
+    setInterval(updateJSON, 2000);
+</script>

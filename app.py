@@ -1,6 +1,24 @@
 from flask import Flask, request, render_template, jsonify, Response
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import json
 from Code.client import *
+from Code.enumerate import Command
 
+
+class myObserver:
+    def __init__(self, name):
+        self.name = name
+        self.last_state = None
+
+    def notify(self, state):
+        self.last_state = state
+
+    def get_state(self):
+        return self.last_state
+
+
+myObserver = myObserver('RTD')
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
 
@@ -30,6 +48,18 @@ def setup_client_connection():
     client = Client()
     if not client.initialised and ip is not None:
         client.setup(ip, int(port if port is not None else '8787'))
+        client.last_state.add_observer(myObserver)
+
+
+@app.route('/realTimeDisplayPing')
+async def real_time_display_ping():
+    state = myObserver.get_state()
+    return jsonify(state)
+
+
+@app.route('/realTimeDisplay')
+async def real_time_display():
+    return render_template('real_time_display.html')
 
 
 @app.route('/setLED')
@@ -45,7 +75,6 @@ async def set_led():
 async def toggle_buzzer():
     value = request.args.get('value')
     state = await send_msg_and_receive_state(f'buzzer {value}')
-
     return jsonify(state.__dict__)
 
 
@@ -61,6 +90,20 @@ async def set_motors():
 async def set_servo():
     value = request.args.get('value')
     state = await send_msg_and_receive_state(f'servo {value}')
+
+    return jsonify(state.__dict__)
+
+
+@app.route('/lineTrackingOn')
+async def line_tracking_on():
+    state = await send_msg_and_receive_state(Command.CMD_LINE_TRACKING.value)
+
+    return jsonify(state.__dict__)
+
+
+@app.route('/lineTrackingOff')
+async def line_tracking_off():
+    state = await send_msg_and_receive_state(Command.CMD_STOP_LINE_TRACKING.value)
 
     return jsonify(state.__dict__)
 

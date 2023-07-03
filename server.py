@@ -16,6 +16,7 @@ from Code.car_utilities.Buzzer import *
 from Code.car_utilities.Led import *
 from Code.car_utilities.Light import *
 from Code.car_utilities.Ultrasonic import *
+from Code.car_utilities.Line_Tracking import *
 from Code.data.packet import *
 from Code.enumerate import *
 
@@ -69,6 +70,7 @@ class Server:
         self.servo_manager = Servo()
         self.led_manager = Led()
         self.buzzer_manager = Buzzer()
+        self.line_tracking = Line_Tracking()
         self.adc = Adc()
         self.data = Data()
         self.sonic = False
@@ -238,9 +240,11 @@ class Server:
             elif cmd == Command.CMD_BUZZER.value:
                 # buzzer 1
                 self.activate_buzzer(split_msg[1])
-            elif cmd == Command.CMD_LIGHT.value:
-                # ??
-                pass
+            elif cmd == Command.CMD_LINE_TRACKING.value:
+                line_tracking_thread = Thread(traget=self.line_tracking.run)
+                line_tracking_thread.run()
+            elif cmd == Command.STOP_CMD_LINE_TRACKING.value:
+                self.line_tracking.stop()
             else:
                 print(f'Error, unknown command {cmd}')
         except Exception as e:
@@ -271,6 +275,7 @@ class Server:
 
     def activate_buzzer(self, param):
         self.buzzer_manager.run(param)
+
 
 
 if __name__ == '__main__':

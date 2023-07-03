@@ -18,6 +18,8 @@ class Line_Tracking:
         self.running = False
 
     def run(self):
+        if self.running:
+            return
         self.running = True
         while self.running:
             self.LMR = 0x00
@@ -32,7 +34,7 @@ class Line_Tracking:
             elif self.LMR == 4:
                 PWM.setMotorModel(-1500, -1500, 2500, 2500)
             elif self.LMR == 6:
-                PWM.setMotorModel(-2000, -2000, 4000, 4000)
+                PWM.setMotorModel(-2000, -2000, 3500, 4000)
             elif self.LMR == 1:
                 PWM.setMotorModel(2500, 2500, -1500, -1500)
             elif self.LMR == 3:

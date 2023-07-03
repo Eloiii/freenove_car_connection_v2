@@ -29,6 +29,30 @@ def start_tcp_client(ip, port):
     return client
 
 
+class StateObserver:
+    def __init__(self):
+        self._observers = []
+        self._state = None
+
+    def state(self):
+        return self._state
+
+    def new_state(self, new_state):
+        if self._state != new_state:
+            self._state = new_state
+            self._notify_observers()
+
+    def _notify_observers(self):
+        for observer in self._observers:
+            observer.notify(self._state)
+
+    def add_observer(self, observer):
+        self._observers.append(observer)
+
+    def remove_observer(self, observer):
+        self._observers.remove(observer)
+
+
 class ClientMeta(type):
     _instances = {}
 
@@ -43,7 +67,7 @@ class Client(metaclass=ClientMeta):
 
     def __init__(self):
         self.client_data_socket = None
-        self.last_state = None
+        self.last_state = StateObserver()
         self.data_collection_bool = False
         self.timer = 1
         self.video_client = None
@@ -70,15 +94,15 @@ class Client(metaclass=ClientMeta):
 
     def connect_to_video_server(self, framerate, width, height):
         self.video_client = start_tcp_client(self.server_ip, self.video_port)
-        camera_data = d.Data.CameraData()
-        d.Data.set_camera_data(camera_data, framerate=framerate, width=width, height=height)
+        camera_data = CameraData()
+        set_camera_data(camera_data, framerate=framerate, width=width, height=height)
         self.video_client.send(pickle.dumps(camera_data))
         self.start_recording()
 
     @class_threading
     def start_recording(self):
         n_img = 0
-        directory = str(d.datetime.now())
+        directory = str(datetime.now())
         os.mkdir(f'./{directory}')
         with self.video_client.makefile('rb') as connection:
             while True:
@@ -119,11 +143,11 @@ class Client(metaclass=ClientMeta):
                         break
                     data = pickle.loads(serialized_data)
                     set_data(data, sampl_rate=self.timer)
-                    self.last_state = data
+                    self.last_state.new_state(data)
                     if self.data_collection_bool:
                         add_car_data_to_db(data=data, onto=onto)
                         default_world.save()
-                    print_data(self.last_state)
+                    # print_data(self.last_state)
                     time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
