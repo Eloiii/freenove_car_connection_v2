@@ -241,7 +241,7 @@ class Server:
                 # buzzer 1
                 self.activate_buzzer(split_msg[1])
             elif cmd == Command.CMD_LINE_TRACKING.value:
-                line_tracking_thread = Thread(traget=self.line_tracking.run)
+                line_tracking_thread = Thread(target=self.line_tracking.run)
                 line_tracking_thread.run()
             elif cmd == Command.STOP_CMD_LINE_TRACKING.value:
                 self.line_tracking.stop()

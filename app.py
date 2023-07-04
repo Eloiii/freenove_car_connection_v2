@@ -1,7 +1,4 @@
 from flask import Flask, request, render_template, jsonify, Response
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import json
 from Code.client import *
 from Code.enumerate import Command
 
@@ -98,14 +95,14 @@ async def set_servo():
 async def line_tracking_on():
     state = await send_msg_and_receive_state(Command.CMD_LINE_TRACKING.value)
 
-    return jsonify(state.__dict__)
+    return "oui"
 
 
 @app.route('/lineTrackingOff')
 async def line_tracking_off():
     state = await send_msg_and_receive_state(Command.CMD_STOP_LINE_TRACKING.value)
 
-    return jsonify(state.__dict__)
+    return "non"
 
 
 def video(framerate):

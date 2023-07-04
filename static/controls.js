@@ -1,5 +1,5 @@
 const request = new XMLHttpRequest();
-const CAR_IP = '138.250.151.253'
+const CAR_IP = '138.250.156.43'
 
 const motor_controls = document.querySelectorAll('.direction')
 for (let control of motor_controls) {
@@ -7,7 +7,7 @@ for (let control of motor_controls) {
         const direction = e.target.classList[0]
         switch (direction) {
             case "forward":
-                send(`/setMotors?ip=${CAR_IP}&value=4000_4000_4000_4000`)
+                send(`/setMotors?ip=${CAR_IP}&value=-4000_-4000_-4000_-4000`)
                 break
             case "left":
                 send(`/setMotors?ip=${CAR_IP}&value=4000_4000_-4000_-4000`)
@@ -16,7 +16,7 @@ for (let control of motor_controls) {
                 send(`/setMotors?ip=${CAR_IP}&value=-4000_-4000_4000_4000`)
                 break
             case "backward":
-                send(`/setMotors?ip=${CAR_IP}&value=-4000_-4000_-4000_-4000`)
+                send(`/setMotors?ip=${CAR_IP}&value=4000_4000_4000_4000`)
                 break
         }
         console.log(direction + ' mousedown')

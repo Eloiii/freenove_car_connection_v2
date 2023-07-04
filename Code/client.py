@@ -147,7 +147,7 @@ class Client(metaclass=ClientMeta):
                     if self.data_collection_bool:
                         add_car_data_to_db(data=data, onto=onto)
                         default_world.save()
-                    # print_data(self.last_state)
+                    print_data(self.last_state.state())
                     time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))
@@ -176,9 +176,9 @@ class Client(metaclass=ClientMeta):
         self.client.close()
 
     async def get_last_state(self):
-        while self.last_state is None:
+        while self.last_state.state() is None:
             continue
-        return self.last_state
+        return self.last_state.state()
 
 
 if __name__ == '__main__':
