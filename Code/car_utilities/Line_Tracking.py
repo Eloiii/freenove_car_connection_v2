@@ -15,7 +15,6 @@ class Line_Tracking:
         self.running = False
 
     def stop(self):
-        print("oui oui")
         self.running = False
 
     def run(self):

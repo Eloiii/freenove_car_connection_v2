@@ -145,7 +145,8 @@ class Client(metaclass=ClientMeta):
                     set_data(data, sampl_rate=self.timer)
                     self.last_state.new_state(data)
                     if self.data_collection_bool:
-                        add_car_data_to_db(data=data, onto=onto)
+                        add_measure_to_db(data=data, onto=onto)
+                        #add_car_data_to_db(data=data, onto=onto)
                         default_world.save()
                     print_data(self.last_state.state())
                     time.sleep(self.timer)

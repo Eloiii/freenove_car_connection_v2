@@ -2,8 +2,10 @@ from owlready2 import *
 from .packet import Data
 
 DB_ABSOLUTE_PATH = os.path.dirname(os.path.abspath(__file__))
-OWLFILE = "/4WD_Car_ontology_specific.owl"
-OWLIRI = "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology#"
+OWLFILE_OLD = "/4WD_Car_ontology_specific.owl"
+OWLFILE = "/4WD_Car_ontology_simplified.owl"
+OWLIRI_OLD = "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_specific_ontology#"
+OWLIRI = "http://www.semanticweb.org/fenrir/ontologies/2023/5/4WD_car_simplified_ontology#"
 SQLITE3FILE = "/4WD_car_db.sqlite3"
 
 
@@ -42,17 +44,36 @@ def stop_database():
 
 
 def print_ontology(onto: Ontology):
-    print(f'{"Classes":-^30}')
+    print(f'{"Classes":-^40}')
     for classes in onto.classes():
         print(classes)
-    print(f'{"Object properties":-^30}')
+    print(f'{"Object properties":-^40}')
     for props in onto.object_properties():
         print(props)
-    print(f'{"data properties":-^30}')
+    print(f'{"data properties":-^40}')
     for data in onto.data_properties():
         print(data)
     print(f'{"":->40}')
 
+
+def add_measure_to_db(data: Data, onto: Ontology):
+    speed = sum(data.motor_model)
+    red, green, blue = 0
+    for rgb in data.leds_state:
+        red += rgb[0]
+        green += rgb[0]
+        blue += rgb[0]
+    onto.measure(timestamp=data.timestamp, voltage=data.battery_voltage, use_percent=data.CPU_use_percent,
+                 number_of_process=data.nb_process, is_recording=data.camera_is_recording,
+                 resolution_height=data.camera_resolution_height, resolution_width=data.camera_resolution_width,
+                 framerate=data.camera_framerate, speed=speed,
+                 red_intensity=red, green_intensity=green, blue_intensity=blue,
+                 is_buzzing=data.buzzer_inUse, ultrasonicOn=data.ultrasonic_inUse)
+
+
+# ALL THE CODE BELLOW IS THE OLD VERSION OF USING THE ONTOLOGY AND THE DATABASE
+# IT WAS ONLY LEARNING PURPOSE IT IS NOT OPTIMISED FOR WHAT WE NEED TO DO
+# ALSO ONTOLOGIES BASE DATABASE ARE NOT OPTIMISED FOR TIME SERIES
 
 def add_car_data_to_db(data: Data, onto: Ontology):
     """
@@ -174,7 +195,7 @@ def create_4WD_car(onto: Ontology, mac: str, ip: str):
 
 
 ############################################################################
-# Ontology that we will be using built on top of an abstracte one
+# Ontology that we will be using built on top of an abstract one
 
 # ----------------Classes----------------
 # 4WD_Car_ontology_specific.Assembly         ---> Abstract class that hasPart

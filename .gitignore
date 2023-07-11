@@ -162,4 +162,6 @@ cython_debug/
 images/
 
 Code/data/.ipynb_checkpoints
-Code/data/4WD_car_db.sqlite3
+Code/data/*.sqlite3
+Code/data/*.sqlite3-journal
+Code/data/*.csv
