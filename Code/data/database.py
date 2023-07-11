@@ -58,7 +58,9 @@ def print_ontology(onto: Ontology):
 
 def add_measure_to_db(data: Data, onto: Ontology):
     speed = sum(data.motor_model)
-    red, green, blue = 0
+    red = 0
+    green = 0
+    blue = 0
     for rgb in data.leds_state:
         red += rgb[0]
         green += rgb[0]
