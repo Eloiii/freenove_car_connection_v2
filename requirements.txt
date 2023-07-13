@@ -1,5 +1,5 @@
 Flask[async]~=2.3.2
-opencv-python~=4.7.0.72
+opencv-python~=4.8.0.74
 numpy~=1.24.3
 picamera2~=0.3.9
 psutil~=5.9.5
