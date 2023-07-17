@@ -82,7 +82,7 @@ class SLAM:
         self.images_dir = list(filter(lambda directory: directory.startswith('images_2023-06-27'), dirs))[0]
         self.n_files = len(os.listdir(f'../{self.images_dir}'))
 
-        self.video = '/home/eloi/stage4A/freenove_car_connection_v2/SLAM/calibration_images_4/VID20230627162017.mp4'
+        self.video = '/home/opex/freenove_car_connection_v2/SLAM/calibration_images_4/VID20230627162017.mp4'
 
     def run(self):
         for k in range(self.n_files):
@@ -99,7 +99,7 @@ class SLAM:
             self.iter(image, idx)
             success, image = vidcap.read()
             idx += 1
-        points = [pt.pt3d for pt in self.map.points]
+        points = np.array([pt.pt_3d for pt in self.map.points])
 
         cv.imwrite(f'{idx}.jpg', image)
 
@@ -266,7 +266,7 @@ class SLAM:
 
     def remove_outliers_map_points(self, curr_pose, local_pts_idx):
         # curr_pose = self.map.keyframes[1].pose
-        pts = [pt.pt3d for pt in self.map.points]
+        pts = np.array([pt.pt_3d for pt in self.map.points])
         pts3d = pts[local_pts_idx]
         R, t = get_Rt(curr_pose)
 
@@ -327,7 +327,7 @@ class SLAM:
         new_map_points_idx = new_map_points_idx[idx_inliers]
         local_desc = local_desc[idx_inliers]
 
-        # TODO refine cam pose
+        bundle_adjustment(self.map.keyframes, self.map.points, self.K)
 
         is_keyframe = self.check_keyframe(num_skip_frames, num_points_kf, curr_frame_idx, new_map_points_idx,
                                           self.num_points_ref_kf)
@@ -375,7 +375,7 @@ class SLAM:
         for frame_id in connected_views_ids:
             kf = self.map.get_f_with_id(frame_id)
 
-            pts = [pt.pt3d for pt in self.map.points]
+            pts = np.array([pt.pt_3d for pt in self.map.points])
             world_pts = pts[kf.points_idx_in_world]
             world_pts_desc = self.map.get_desc(kf.points_idx_in_world)
             kf_pose = kf.pose
@@ -409,7 +409,7 @@ class SLAM:
             uScales2 = np.array([pt.octave + 1 for pt in kf.real_kp[match_idx_1]])
 
             F, mask = cv.findFundamentalMat(matched_pts_1, matched_pts_2, method=cv.RANSAC)
-            Fbis = compute_F(self.K, kf_pose, curr_kf_pose)
+            # F = compute_F(self.K, kf_pose, curr_kf_pose).A
 
             epiLines = cv.computeCorrespondEpilines(matched_pts_2.reshape(-1, 1, 2), 2, F)
             epiLines = epiLines.reshape(-1, 3)
@@ -463,7 +463,7 @@ class SLAM:
             if len(filtered_3d_points) == 0:
                 continue
 
-            new_points_idx = self.map.add_points(filtered_3d_points, kf_pose, self.K, self.dist)
+            new_points_idx = self.map.add_points(filtered_3d_points, kf_pose, self.K, self.dist, [kf.id, curr_kf.id], [True, True])
 
             yellow(f'added {len(new_points_idx)} points to the map')
 
