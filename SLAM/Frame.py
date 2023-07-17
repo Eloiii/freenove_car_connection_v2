@@ -12,7 +12,7 @@ class Frame:
         self.kpn = kpn
         self.pose = np.eye(4)
         self.is_keyframe = False
-        self.points_3d_idx_in_world = np.array([], dtype=int)
+        self.points_idx_in_world = np.array([], dtype=int)
         self.points_filtered_idx = None
         self.desc_filtered_idx = None
         self.desc_world_point = dict()
@@ -33,7 +33,7 @@ class Frame:
         self.pose = pose
 
     def add_points(self, points):
-        self.points_3d_idx_in_world = np.unique(np.append(self.points_3d_idx_in_world, points))
+        self.points_idx_in_world = np.unique(np.append(self.points_idx_in_world, points))
 
     def add_filtered_desc(self, desc):
         for d in desc:

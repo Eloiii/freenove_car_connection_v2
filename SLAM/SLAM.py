@@ -99,7 +99,7 @@ class SLAM:
             self.iter(image, idx)
             success, image = vidcap.read()
             idx += 1
-        points = self.map.points_3d
+        points = [pt.pt3d for pt in self.map.points]
 
         cv.imwrite(f'{idx}.jpg', image)
 
@@ -202,7 +202,7 @@ class SLAM:
     def track_last_keyframe(self, curr_frame):
 
         last_keyframe = self.map.keyframes[-1]
-        world_points_idx = last_keyframe.points_3d_idx_in_world
+        world_points_idx = last_keyframe.points_idx_in_world
 
         # matches the features in the current frame  with the features in the last key frame
         # that have known corresponding world points.
@@ -242,8 +242,8 @@ class SLAM:
 
         point_idx = []
         for kf_id in local_kfs_idx:
-            kf = self.map.get_kf_with_id(kf_id)
-            point_idx.append(kf.points_3d_idx_in_world)
+            kf = self.map.get_f_with_id(kf_id)
+            point_idx.append(kf.points_idx_in_world)
         max_length = max(len(sub) for sub in point_idx)
         same_size_point_idx = []
         for sub in point_idx:
@@ -266,7 +266,8 @@ class SLAM:
 
     def remove_outliers_map_points(self, curr_pose, local_pts_idx):
         # curr_pose = self.map.keyframes[1].pose
-        pts3d = self.map.points_3d[local_pts_idx]
+        pts = [pt.pt3d for pt in self.map.points]
+        pts3d = pts[local_pts_idx]
         R, t = get_Rt(curr_pose)
 
         # points_2d_reproj, _ = cv.projectPoints(pts3d, R, t, self.K, self.dist)
@@ -340,8 +341,8 @@ class SLAM:
         curr_frame.add_points(new_points)
 
         for kf_id in self.local_kf_idx:
-            keyframe = self.map.get_kf_with_id(kf_id)
-            pts_3d_idx = keyframe.points_3d_idx_in_world
+            keyframe = self.map.get_f_with_id(kf_id)
+            pts_3d_idx = keyframe.points_idx_in_world
             desc_idx = keyframe.desc_filtered_idx
             _, ia, ib = np.intersect1d(pts_3d_idx, new_points, return_indices=True)
 
@@ -368,14 +369,15 @@ class SLAM:
         last_kf_id = self.map.get_last_keyframe_idx()
 
         connected_views_ids = self.map.get_connected_frames(last_kf_id)
-        curr_kf = self.map.get_kf_with_id(last_kf_id)
+        curr_kf = self.map.get_f_with_id(last_kf_id)
 
         recent_point_idx = []
         for frame_id in connected_views_ids:
-            kf = self.map.get_kf_with_id(frame_id)
+            kf = self.map.get_f_with_id(frame_id)
 
-            world_pts = self.map.points_3d[kf.points_3d_idx_in_world]
-            world_pts_desc = self.map.get_desc(kf.points_3d_idx_in_world)
+            pts = [pt.pt3d for pt in self.map.points]
+            world_pts = pts[kf.points_idx_in_world]
+            world_pts_desc = self.map.get_desc(kf.points_idx_in_world)
             kf_pose = kf.pose
             kf_pose_t = kf_pose[:3, 3]
             median_depth = np.median(np.linalg.norm(world_pts - kf_pose_t, axis=1))
@@ -385,7 +387,7 @@ class SLAM:
             if is_view_close:
                 continue
 
-            curr_kf_desc = self.map.get_desc(curr_kf.points_3d_idx_in_world)
+            curr_kf_desc = self.map.get_desc(curr_kf.points_idx_in_world)
 
             unmatched_idx1 = np.setdiff1d(np.arange(0, len(kf.desc)), world_pts_desc)
             unmatched_idx2 = np.setdiff1d(np.arange(0, len(curr_kf.desc)), curr_kf_desc)
@@ -539,10 +541,13 @@ class SLAM:
             if len(filtered_3d_points) > 50 and is_valid:
                 self.state = 'INITIALISED'
                 yellow(f'Initialised with {len(filtered_3d_points)} points')
-                new_points_idx = self.map.add_points(filtered_3d_points, Trc, self.K, self.dist)
 
                 self.map.add_keyframe(ref_frame)
                 self.map.add_keyframe(curr_frame)
+
+                new_points_idx = self.map.add_points(filtered_3d_points, Trc, self.K, self.dist,
+                                                     [curr_frame.id, ref_frame.id], [True, True])
+
                 ref_frame.add_points(new_points_idx)
                 curr_frame.add_points(new_points_idx)
 
@@ -554,8 +559,7 @@ class SLAM:
 
                 self.is_last_frame_kf = True
                 # TODO refine and optimize points and camera pose (ceres, g2o...)
-                bundle_adjustment(self.map.keyframes, self.map.points_3d)
-
+                bundle_adjustment(self.map.keyframes, self.map.points, self.K)
 
         elif self.state == 'INITIALISED':
             self.run_orb(img, curr_frame_idx)

@@ -4,7 +4,7 @@ import g2o
 from colorist import red
 
 
-def bundle_adjustment(keyframes, points, local_window=None, fixed_points=False, verbose=False, rounds=10,
+def bundle_adjustment(keyframes, points, K, local_window=None, fixed_points=False, verbose=False, rounds=10,
                       use_robust_kernel=False):
     if local_window is None:
         local_frames = keyframes
@@ -13,7 +13,7 @@ def bundle_adjustment(keyframes, points, local_window=None, fixed_points=False, 
 
     # create g2o optimizer
     opt = g2o.SparseOptimizer()
-    block_solver = g2o.BlockSolverSE3(g2o.LinearSolverPCGSE3())
+    block_solver = g2o.BlockSolverX(g2o.LinearSolverEigenX())
     solver = g2o.OptimizationAlgorithmLevenberg(block_solver)
     opt.set_algorithm(solver)
 
@@ -47,30 +47,31 @@ def bundle_adjustment(keyframes, points, local_window=None, fixed_points=False, 
         assert (p is not None)
         v_p = g2o.VertexPointXYZ()
         v_p.set_id(idx * 2 + 1)
-        v_p.set_estimate(p)
+        v_p.set_estimate(p.pt_3d)
         v_p.set_marginalized(True)
         v_p.set_fixed(fixed_points)
         opt.add_vertex(v_p)
         graph_points[idx] = v_p
 
         # add edges
-        for kf, obs_idx in p.observations():
+        for kf_id in p.kf_observations:
+            kf = [frame for frame in keyframes if frame.id == kf_id][0]
             if kf not in graph_keyframes:
                 continue
             # print('adding edge between point ', p.id,' and frame ', f.id)
-            edge = g2o.EdgeSE3ProjectXYZ()
+            edge = g2o.EdgeSE3()
             edge.set_vertex(0, v_p)
             edge.set_vertex(1, graph_keyframes[kf])
-            edge.set_measurement(kf.kpsu[obs_idx])
-            invSigma2 = Frame.feature_manager.inv_level_sigmas2[kf.octaves[obs_idx]]
-            edge.set_information(np.eye(2) * invSigma2)
+            edge.set_measurement(kf.kpu[p.kf_observations[kf_id]])
+            # invSigma2 = Frame.feature_manager.inv_level_sigmas2[kf.octaves[p.kf_observations[kf_id]]]
+            edge.set_information(np.eye(2))
             if use_robust_kernel:
                 edge.set_robust_kernel(g2o.RobustKernelHuber(thHuberMono))
 
-            edge.fx = kf.camera.fx
-            edge.fy = kf.camera.fy
-            edge.cx = kf.camera.cx
-            edge.cy = kf.camera.cy
+            edge.fx = K.A[0][0]
+            edge.fy = K.A[1][1]
+            edge.cx = K.A[0][2]
+            edge.cy = K.A[1][2]
 
             opt.add_edge(edge)
             num_edges += 1

@@ -11,31 +11,31 @@ def get_most_common_value(array):
     return most_common
 
 
-class MapPoint():
+class MapPoint:
     def __init__(self, pt3d, pt2d):
         self.pt_3d = pt3d
         self.pt_2d = pt2d
-        self.kf_observations = []
+        self.kf_observations = dict()
+        self.f_observations = dict()
 
-    def add_observation(self, kfidx):
-        self.kf_observations.append(kfidx)
-
-    def get_observations(self):
-        return np.array(self.kf_observations)
+    def add_observation(self, fidx, is_kf, idx):
+        if is_kf:
+            self.kf_observations[fidx] = idx
+        self.f_observations[fidx] = idx
 
 
 class Map:
     def __init__(self):
         self.points = []
-        self.points_3d = np.empty((0, 3))
-        self.points_2d = []
+        # self.points_3d = np.empty((0, 3))
+        # self.points_2d = []
         self.keyframes = []
         self.frames = []
         self.keyframes_matches = {}
         self.connections = []
 
-    def add_points(self, points_3d, Trc, K, dist):
-        curr_points_len = len(self.points_3d)
+    def add_points(self, points_3d, Trc, K, dist, frame_idx, is_kf):
+        curr_points_len = len(self.points)
 
         R = Trc[:3, :3]
         t = Trc[:3, 3].T
@@ -44,10 +44,13 @@ class Map:
         points_2d = points_2d.reshape((points_2d.shape[0], 2))
 
         for k, p in enumerate(points_3d):
-            self.points_3d = np.vstack((self.points_3d, p))
-            # self.points.append(MapPoint(p, points_2d[k]))
+            mp = MapPoint(p, points_2d[k])
+            for k_f, frame_id in enumerate(frame_idx):
+                frame = self.get_f_with_id(frame_id)
+                mp.add_observation(frame_id, is_kf[k_f], frame.points_filtered_idx[k])
+            self.points.append(mp)
 
-        return np.arange(curr_points_len, len(self.points_3d), 1, dtype=int)
+        return np.arange(curr_points_len, len(self.points), 1, dtype=int)
 
     def add_keyframe(self, frame):
         frame.is_keyframe = True
@@ -76,17 +79,17 @@ class Map:
     def get_last_keyframe_idx(self):
         return self.keyframes[-1].id
 
-    def get_kf_with_id(self, kf_id):
-        return [frame for frame in self.keyframes if frame.id == kf_id][0]
+    def get_f_with_id(self, kf_id):
+        return [frame for frame in self.frames if frame.id == kf_id][0]
 
     def find_views_of_world_point(self, points_idx):
         res = []
         for p in points_idx:
             tmp = []
             for view in self.keyframes:
-                if len(view.points_3d_idx_in_world) == 0:
+                if len(view.points_idx_in_world) == 0:
                     continue
-                if p in view.points_3d_idx_in_world:
+                if p in view.points_idx_in_world:
                     tmp.append(view.id)
             res.append(tmp)
         max_length = max(len(subarray) for subarray in res)
