@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import sys
+
 sys.path.append('/usr/lib/python3/dist-packages')
 import g2o
 from colorist import red

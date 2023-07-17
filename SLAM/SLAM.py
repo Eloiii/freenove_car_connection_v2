@@ -82,7 +82,7 @@ class SLAM:
         self.images_dir = list(filter(lambda directory: directory.startswith('images_2023-06-27'), dirs))[0]
         self.n_files = len(os.listdir(f'../{self.images_dir}'))
 
-        self.video = '/home/opex/freenove_car_connection_v2/SLAM/calibration_images_4/VID20230627162017.mp4'
+        self.video = '/home/eloi/stage4A/freenove_car_connection_v2/SLAM/calibration_images_4/VID20230627162017.mp4'
 
     def run(self):
         for k in range(self.n_files):
@@ -327,7 +327,7 @@ class SLAM:
         new_map_points_idx = new_map_points_idx[idx_inliers]
         local_desc = local_desc[idx_inliers]
 
-        bundle_adjustment(self.map.keyframes, self.map.points, self.K)
+        # bundle_adjustment(self.map.keyframes, self.map.points, self.K)
 
         is_keyframe = self.check_keyframe(num_skip_frames, num_points_kf, curr_frame_idx, new_map_points_idx,
                                           self.num_points_ref_kf)
@@ -463,7 +463,8 @@ class SLAM:
             if len(filtered_3d_points) == 0:
                 continue
 
-            new_points_idx = self.map.add_points(filtered_3d_points, kf_pose, self.K, self.dist, [kf.id, curr_kf.id], [True, True])
+            new_points_idx = self.map.add_points(filtered_3d_points, kf_pose, self.K, self.dist, [kf.id, curr_kf.id],
+                                                 [True, True])
 
             yellow(f'added {len(new_points_idx)} points to the map')
 

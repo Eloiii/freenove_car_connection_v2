@@ -23,9 +23,10 @@ def Calibrate():
     object_points[:, :2] = np.mgrid[0:7, 0:7].T.reshape(-1, 2)
     object_points = object_points * square_size
 
-    fnames = glob.glob('/home/eloi/stage4A/freenove_car_connection_v2/SLAM/calibration_images/' + '*.' + 'jpg')
+    fnames = glob.glob('/home/eloi/stage4A/freenove_car_connection_v2/SLAM/calibration_images_4/' + '*.' + 'jpg')
 
     for fname in fnames:
+        print(fname)
         img = cv2.imread(fname)
         img_size = (img.shape[1], img.shape[0])
         gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -48,7 +49,7 @@ def Calibrate():
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, img_size, None, None)
 
 
-    img = cv2.imread(fnames[19])
+    img = cv2.imread(fnames[5])
     dst = cv2.undistort(img, mtx, dist, None, mtx)
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
     ax1.imshow(img)
@@ -68,4 +69,3 @@ if __name__ == "__main__":
     dist_pickle["mtx"] = mtx
     dist_pickle["dist"] = dist
     pickle.dump(dist_pickle, open("dist_pickle.p", "wb"))
-
