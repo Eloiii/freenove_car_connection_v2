@@ -296,15 +296,15 @@ def slamv2(n_images):
 
 if __name__ == '__main__':
     dirs = os.listdir('..')
-    images_dir = list(filter(lambda directory: directory.startswith('images_2023-06-23'), dirs))[0]
+    images_dir = list(filter(lambda directory: directory.startswith('images_2023-06-26_15:08'), dirs))[0]
     n_files = len(os.listdir(f'../{images_dir}'))
 
     # draw_kp()
 
-    # find_matching()
+    find_matching()
 
     # xpoints, ypoints, zpoints = slam(1)
 
-    points = slamv2(1)
-    print(points)
+    # points = slamv2(1)
+    # print(points)
 
