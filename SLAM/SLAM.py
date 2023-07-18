@@ -172,10 +172,10 @@ class SLAM:
         return points_3d, good_pts_mask
 
     def filter_triangulated_points(self, points_3d, Trc, points_2d, curr_frame, ref_frame, scales1=None, scales2=None):
-        # min_distance = 1.0
-        # max_distance = 35.0
-        # distances = np.linalg.norm(points_3d, axis=1)
-        # mask_distance = np.logical_and(distances > min_distance, distances < max_distance)
+        min_distance = 1.0
+        max_distance = 45.0
+        distances = np.linalg.norm(points_3d, axis=1)
+        mask_distance = np.logical_and(distances > min_distance, distances < max_distance)
 
         reprojection_threshold = np.sqrt(6) * np.minimum(scales1, scales2)
 
@@ -186,7 +186,7 @@ class SLAM:
         reprojection_errors = np.linalg.norm(points_2d_reproj.squeeze() - points_2d, axis=1)
         mask_reproj_error = reprojection_errors <= reprojection_threshold
         mask_positive_z = points_3d[:, 2] > 0
-        masks = mask_reproj_error & mask_positive_z
+        masks = mask_reproj_error & mask_positive_z & mask_distance
         filtered_points_reproj = points_3d[masks]
 
         min_parallax = 1
@@ -560,7 +560,7 @@ class SLAM:
 
                 self.is_last_frame_kf = True
                 # TODO refine and optimize points and camera pose (ceres, g2o...)
-                bundle_adjustment(self.map.keyframes, self.map.points, self.K)
+                # bundle_adjustment(self.map.keyframes, self.map.points, self.K)
 
         elif self.state == 'INITIALISED':
             self.run_orb(img, curr_frame_idx)
@@ -579,7 +579,7 @@ class SLAM:
                 f'generated {len(world_points_idx)} points from frame {curr_frame_idx} with kf {self.map.get_last_keyframe_idx()}')
 
             num_skip_frames = 5
-            num_points_kf = 100
+            num_points_kf = 110
             is_keyframe, new_points_idx, desc = self.track_local_map(world_points_idx, desc_idx, camera_pose,
                                                                      curr_frame.desc, curr_frame.kpn,
                                                                      curr_frame_idx, num_skip_frames, num_points_kf)
@@ -601,4 +601,4 @@ class SLAM:
 
 if __name__ == '__main__':
     slam = SLAM()
-    slam.run_video(150)
+    slam.run_video(200)

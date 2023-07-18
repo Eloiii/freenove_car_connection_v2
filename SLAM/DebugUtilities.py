@@ -71,7 +71,7 @@ def draw_3d(xpoints, ypoints, zpoints):
     plot_figure = go.Figure(data=data, layout=layout)
 
     # Render the plot.
-    plotly.offline.iplot(plot_figure)
+    plot_figure.show()
 
 
 def display_plot(points):
