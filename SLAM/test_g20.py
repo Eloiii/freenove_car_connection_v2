@@ -1,6 +1,8 @@
 import math
 import numpy as np
 import sys
+
+sys.path.append('/usr/lib/python3/dist-packages')
 import g2o
 from colorist import red
 
@@ -105,7 +107,7 @@ def bundle_adjustment(keyframes, points, K, local_window=None, fixed_points=Fals
     return mean_squared_error
 
 
-def pose_optimization(frame, verbose=False, rounds=10):
+def pose_optimization(frame, K, verbose=False, rounds=10):
     is_ok = True
 
     # create g2o optimizer
@@ -117,54 +119,46 @@ def pose_optimization(frame, verbose=False, rounds=10):
     opt.set_algorithm(solver)
 
     # robust_kernel = g2o.RobustKernelHuber(np.sqrt(5.991))  # chi-square 2 DOFs
-    thHuberMono = math.sqrt(5.991);  # chi-square 2 DOFS
+    thHuberMono = math.sqrt(5.991)  # chi-square 2 DOFS
 
     point_edge_pairs = {}
     num_point_edges = 0
 
     v_se3 = g2o.VertexSE3Expmap()
-    v_se3.set_estimate(g2o.SE3Quat(frame.Rcw, frame.tcw))
+    R = frame.pose[:3, :3]
+    t = frame.pose[:3, 3]
+    v_se3.set_estimate(g2o.SE3Quat(R, t))
     v_se3.set_id(0)
     v_se3.set_fixed(False)
     opt.add_vertex(v_se3)
 
-    with MapPoint.global_lock:
-        # add point vertices to graph
-        for idx, p in enumerate(frame.points):
-            if p is None:
-                continue
+    # add point vertices to graph
+    for idx, p in enumerate(frame.kpn):
+        # add edge
+        # print('adding edge between point ', p.id,' and frame ', frame.id)
+        edge = g2o.EdgeSE3ProjectXYZOnlyPose()
 
-            # reset outlier flag
-            frame.outliers[idx] = False
+        edge.set_vertex(0, opt.vertex(0))
+        edge.set_measurement(frame.kpu[idx])
+        # invSigma2 = Frame.feature_manager.inv_level_sigmas2[frame.octaves[idx]]
+        edge.set_information(np.eye(2))
+        edge.set_robust_kernel(g2o.RobustKernelHuber(thHuberMono))
 
-            # add edge
-            # print('adding edge between point ', p.id,' and frame ', frame.id)
-            edge = g2o.EdgeSE3ProjectXYZOnlyPose()
+        edge.fx = K.A[0][0]
+        edge.fy = K.A[1][1]
+        edge.cx = K.A[0][2]
+        edge.cy = K.A[1][2]
+        edge.Xw = p
 
-            edge.set_vertex(0, opt.vertex(0))
-            edge.set_measurement(frame.kpsu[idx])
-            invSigma2 = Frame.feature_manager.inv_level_sigmas2[frame.octaves[idx]]
-            edge.set_information(np.eye(2) * invSigma2)
-            edge.set_robust_kernel(g2o.RobustKernelHuber(thHuberMono))
+        opt.add_edge(edge)
 
-            edge.fx = frame.camera.fx
-            edge.fy = frame.camera.fy
-            edge.cx = frame.camera.cx
-            edge.cy = frame.camera.cy
-            edge.Xw = p.pt[0:3]
-
-            opt.add_edge(edge)
-
-            point_edge_pairs[p] = (edge, idx)  # one edge per point
-            num_point_edges += 1
+        point_edge_pairs[p] = (edge, idx)  # one edge per point
+        num_point_edges += 1
 
     if num_point_edges < 3:
-        Printer.red('pose_optimization: not enough correspondences!')
+        red('pose_optimization: not enough correspondences!')
         is_ok = False
         return 0, is_ok, 0
-
-    if verbose:
-        opt.set_verbose(True)
 
     # perform 4 optimizations:
     # after each optimization we classify observation as inlier/outlier;
