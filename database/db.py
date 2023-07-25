@@ -59,7 +59,7 @@ def auto_map_sub_assembly(sub, onto: Ontology, data: Data):
         for led in sub.hasPart:
             new_measure = onto.measure()
             new_measure.timestamp = (data.timestamp)
-            index = led.index
+            index = led.id
             new_measure.red_intensity = (rgb[index][0])
             new_measure.green_intensity = (rgb[index][1])
             new_measure.blue_intensity = (rgb[index][2])
