@@ -29,42 +29,20 @@ def start_tcp_client(ip, port):
     return client
 
 
-class ClientMeta(type):
-    _instances = {}
+class Client:
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
-
-
-class Client(metaclass=ClientMeta):
-
-    def __init__(self):
+    def __init__(self, ip, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value,
+                 data_port=Port.PORT_DATA.value):
+        # init_db()
+        self.server_ip = ip
+        self.video_port = video_port
+        self.client = start_tcp_client(ip, port)
+        self.video_client = None
         self.client_data_socket = None
         self.last_state = None
         self.data_collection_bool = False
         self.timer = 1
-        self.video_client = None
-        self.client = None
-        self.video_port = None
-        self.server_ip = None
         self.imgbytes = None
-        self.initialised = False
-
-    def __new__(cls, *args, **kwargs):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(Client, cls).__new__(cls)
-        return cls.instance
-
-    def setup(self, ip, port=Port.PORT_COMMAND.value, video_port=Port.PORT_VIDEO.value, data_port=Port.PORT_DATA.value):
-        """
-        Set up the client connection with the server for the command handling and for the data collection
-        """
-        self.server_ip = ip
-        self.video_port = video_port
-        self.client = start_tcp_client(ip, port)
         self.data_collection(ip, data_port)
         self.initialised = True
 
@@ -123,7 +101,7 @@ class Client(metaclass=ClientMeta):
                     if self.data_collection_bool:
                         add_car_data_to_db(data=data, onto=onto)
                         default_world.save()
-                    print_data(self.last_state)
+                    # print_data(self.last_state)
                     time.sleep(self.timer)
             except socket.error as e:
                 print("Connexion error :", str(e))

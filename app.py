@@ -2,7 +2,17 @@ from flask import Flask, request, render_template, jsonify, Response
 from Code.client import *
 
 app = Flask(__name__)
-app.secret_key = 'SECRET_KEY'
+
+clients = []
+
+
+async def send_msg_and_receive_state(command):
+    client_index = int(request.args.get('ci'))
+    client = clients[client_index - 1]
+    client.send_msg(command)
+
+    data = await client.get_last_state()
+    return data
 
 
 @app.route('/')
@@ -15,21 +25,28 @@ def internal_server_error(error):
     return render_template('internal_server_error.html', error=error), 500
 
 
-async def send_msg_and_receive_state(command):
-    client = Client()
-    client.send_msg(command)
+@app.route('/connect/<string:ip>')
+async def connect(ip):
+    for client_registered in clients:
+        if ip == client_registered.server_ip:
+            return jsonify({
+                "message": "Connection already established",
+                "client_index": clients.index(client_registered) + 1
+            })
+    try:
+        client = Client(ip)
+        clients.append(client)
+        return jsonify({
+            "message": "Client connection successful",
+            "client_index": len(clients)
+        })
+    except Exception as e:
+        return f'{e}'
 
-    data = await client.get_last_state()
-    return data
 
-
-@app.before_request
-def setup_client_connection():
-    ip = request.args.get('ip')
-    port = request.args.get('port')
-    client = Client()
-    if not client.initialised and ip is not None:
-        client.setup(ip, int(port if port is not None else '8787'))
+@app.route('/connect/')
+async def connect_redirect():
+    return 'go to /connect/{car_ip}'
 
 
 @app.route('/setLED')
@@ -65,9 +82,9 @@ async def set_servo():
     return jsonify(state.__dict__)
 
 
-def video(framerate):
-    client = Client()
-    client.connect_to_video_server(framerate)
+def video(framerate, client_index, height, width):
+    client = clients[client_index - 1]
+    client.connect_to_video_server(framerate, width, height)
     while True:
         if client.imgbytes is not None:
             yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + client.imgbytes + b'\r\n'
@@ -76,12 +93,16 @@ def video(framerate):
 @app.route('/get_video')
 def get_video():
     framerate = request.args.get('framerate')
-    return Response(video(framerate), mimetype='multipart/x-mixed-replace; boundary=frame')
+    client_index = int(request.args.get('ci'))
+    width = request.args.get('width')
+    height = request.args.get('height')
+    return Response(video(framerate, client_index, height, width), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/start_recording')
 def start_recording():
-    client = Client()
+    client_index = int(request.args.get('ci'))
+    client = clients[client_index - 1]
     framerate = request.args.get('framerate')
     width = request.args.get('width')
     height = request.args.get('height')
@@ -92,7 +113,8 @@ def start_recording():
 
 @app.route('/stop_recording')
 def stop_recording():
-    client = Client()
+    client_index = int(request.args.get('ci'))
+    client = clients[client_index - 1]
     client.close_video_connection()
 
     return 'Recording stopped'
@@ -100,7 +122,8 @@ def stop_recording():
 
 @app.route('/data_collection_on')
 def start_data_collection():
-    client = Client()
+    client_index = int(request.args.get('ci'))
+    client = clients[client_index - 1]
     client.data_collection_bool = True
 
     return 'data collection started'
@@ -108,7 +131,8 @@ def start_data_collection():
 
 @app.route('/data_collection_off')
 def stop_data_collection():
-    client = Client()
+    client_index = int(request.args.get('ci'))
+    client = clients[client_index - 1]
     client.data_collection_bool = False
 
     return 'data collection stopped'

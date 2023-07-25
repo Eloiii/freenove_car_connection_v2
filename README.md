@@ -37,12 +37,10 @@ Launch `sudo python server.py` on the car
 
 #### Endpoints
 
-To set up the TCP connection between the client and the server (the car) the car IP address is required in
-**at least the first endpoint call as a GET parameter** (except `/`, e.g. `localhost:5000/start_recording?ip=138.250.156.7`).
-
-Once the IP is filled in once, it is not mandatory when calling other endpoints after that.
+⚠️ Every endpoint must have the `ci=` (client index) argument which indicates to which car to send the commands. ⚠️ 
 
 - `/`
+- `/connect/{car_pi}`: set up the connection between the client and a car
 - `/setLED` : 
   - parameter `value` : `LEDINDEX_REDVALUE_GREENVALUE_BLUEVALUE`
   - e.g. `value=0x01_255_255_255` will turn the LED 1 white

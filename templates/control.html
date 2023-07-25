@@ -12,8 +12,25 @@
 
 {% block content %}
     <main>
+        <div style="margin-bottom: 50px; display: flex; height: 30px; justify-content: space-around; align-items: center; width: 60%; color: red" id="connection">
+            <div>
+                <label for="car_ip">
+                    <strong>Car IP</strong>
+                </label>
+                <input type="text" id="car_ip">
+            </div>
+
+            <h4>OR</h4>
+
+            <div class="">
+                <label for="car_index">
+                    <strong>Car index, if connection already established</strong>
+                </label>
+                <input type="text" id="car_index">
+            </div>
+        </div>
         <section>
-            <div class="motors">
+            <div class=" motors">
                 Motors
                 <div class="top">
                     <div class="forward direction">
