@@ -107,7 +107,7 @@ def bundle_adjustment(keyframes, points, K, local_window=None, fixed_points=Fals
     return mean_squared_error
 
 
-def pose_optimization(frame, K, verbose=False, rounds=10):
+def pose_optimization(frame, K, pts_3d, verbose=False, rounds=10):
     is_ok = True
 
     # create g2o optimizer
@@ -148,7 +148,7 @@ def pose_optimization(frame, K, verbose=False, rounds=10):
         edge.fy = K.A[1][1]
         edge.cx = K.A[0][2]
         edge.cy = K.A[1][2]
-        edge.Xw = p
+        edge.Xw = pts_3d[idx]
 
         opt.add_edge(edge)
 
