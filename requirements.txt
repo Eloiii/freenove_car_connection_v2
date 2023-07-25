@@ -17,3 +17,8 @@ python-prctl==1.8.1
 simplejpeg==1.6.6
 v4l2-python3==0.3.2
 Werkzeug==2.3.6
+
+setuptools~=65.5.0
+matplotlib~=3.7.2
+colorist~=1.6.0
+plotly~=5.15.0

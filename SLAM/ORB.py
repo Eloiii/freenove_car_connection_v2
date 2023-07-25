@@ -96,12 +96,12 @@ K = np.matrix(
     [[692.1783869, 0., 353.07150929], [0., 704.4016042, 178.98211959], [0., 0., 1.]]).A
 dist = np.array([[0.12111298, 0.26876559, -0.04746641, -0.00175447, -1.04781593]])
 
-
 K2 = np.matrix([[610.74086543, 0., 288.41585705], [0., 609.96728207, 254.08996828], [0., 0., 1.]])
 dist2 = np.array([[0.1870135, -0.44984605, 0.0081328, -0.01649483, -2.30811376]])
 
 K3 = np.matrix([[590.74297264, 0., 324.63603709], [0., 585.79496849, 142.70731962], [0., 0., 1.]])
 dist3 = np.array([[-0.04404331, 0.46255196, -0.01871533, 0.01093527, -0.90253976]])
+
 
 def undistort(x, y, k, distortion, iter_num=3):
     k1, k2, p1, p2, k3 = distortion[0]
@@ -113,12 +113,13 @@ def undistort(x, y, k, distortion, iter_num=3):
     y0 = y
     for _ in range(iter_num):
         r2 = x ** 2 + y ** 2
-        k_inv = 1 / (1 + k1 * r2 + k2 * r2**2 + k3 * r2**3)
-        delta_x = 2 * p1 * x*y + p2 * (r2 + 2 * x**2)
-        delta_y = p1 * (r2 + 2 * y**2) + 2 * p2 * x*y
+        k_inv = 1 / (1 + k1 * r2 + k2 * r2 ** 2 + k3 * r2 ** 3)
+        delta_x = 2 * p1 * x * y + p2 * (r2 + 2 * x ** 2)
+        delta_y = p1 * (r2 + 2 * y ** 2) + 2 * p2 * x * y
         x = (x0 - delta_x) * k_inv
         y = (y0 - delta_y) * k_inv
     return np.array((x * fx + cx, y * fy + cy))
+
 
 def slam(n_images):
     orb = cv.ORB_create()
@@ -201,7 +202,8 @@ def slam(n_images):
 
         P_l = np.dot(K, M_l)
         P_r = np.dot(K, M_r)
-        point_4d_hom = cv.triangulatePoints(P_l, P_r, np.expand_dims(inlier_pre_points, axis=1), np.expand_dims(inlier_curr_points, axis=1))
+        point_4d_hom = cv.triangulatePoints(P_l, P_r, np.expand_dims(inlier_pre_points, axis=1),
+                                            np.expand_dims(inlier_curr_points, axis=1))
         point_4d = point_4d_hom / np.tile(point_4d_hom[-1, :], (4, 1))
         points_3d = point_4d[:3, :].T
 
@@ -296,15 +298,16 @@ def slamv2(n_images):
 
 if __name__ == '__main__':
     dirs = os.listdir('..')
-    images_dir = list(filter(lambda directory: directory.startswith('images_2023-06-26_15:08'), dirs))[0]
+    images_dir = list(filter(lambda directory: directory.startswith('images_2023-06-21_16:00:55.626868'), dirs))[0]
     n_files = len(os.listdir(f'../{images_dir}'))
 
     # draw_kp()
 
     find_matching()
 
+    # generate_kp_images()
+
     # xpoints, ypoints, zpoints = slam(1)
 
     # points = slamv2(1)
     # print(points)
-
