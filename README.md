@@ -34,12 +34,12 @@ Launch `sudo python3 server.py` on the car
 
 ### Client
 
-- Run `./venv/bin/flask --app app run` to start the Flask app.
+Run `./venv/bin/flask --app app run` to start the Flask app.
 
-### Endpoints
+## Flask endpoints
 
 First, initialize the connection by sending a GET request to `/connect/{car_pi}`.  
-⚠️Every endpoint must have the `ci=` (client index) argument which indicates to which car to send the commands.⚠️
+⚠️ Every endpoint must have the `ci=` (client index) argument which indicates to which car to send the commands.
 
 | Name | Required | Type    | Description   |
 |------|----------|---------|---------------|
